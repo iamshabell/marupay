@@ -15,9 +15,7 @@ export const createEdahabHandler = defineHandler({
                 request: z.string()
             }),
         }),
-        request: z.object({
-            agentCode: z.string(),
-        }),
+        request: z.object({}),
     },
     defaultConfig: {
         links: {
@@ -27,8 +25,8 @@ export const createEdahabHandler = defineHandler({
     request: async ({ ctx, options }) => {
         const hashCode = hashSecretKey(options, ctx.secretKey);
 
-        const { amount, accountNumber, currency, description, agentCode} = options;
-        const { links, apiKey } = ctx;
+        const { amount, accountNumber, currency, description} = options;
+        const { links, apiKey, merchantId } = ctx;
 
 
         const response = await axios.post<API.RequestPaymentReq, { data: API.RequestPaymentRes }>(links.request + hashCode, {
@@ -36,7 +34,7 @@ export const createEdahabHandler = defineHandler({
             edahabNumber: accountNumber,
             amount: amount,
             currency: currency,
-            agentCode: agentCode,
+            agentCode: merchantId,
             description: description,
         });
 
