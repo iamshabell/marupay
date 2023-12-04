@@ -19,17 +19,30 @@ export const baseRequestSchema = z.object({
 
 export type BaseRequestOptions = z.infer<typeof baseRequestSchema>;
 
-export const defineHandler = <DriverConfigSchema extends ZodSchema,
-    DriverRequestSchema extends ZodSchema, IConfig extends z.infer<DriverConfigSchema> & BaseConfigOptions,
-    IRequest extends z.infer<DriverRequestSchema> & BaseRequestOptions, DefaultConfig extends Partial<IConfig>>({schema, defaultConfig, request}: {
-        schema: {config: DriverConfigSchema, request: DriverRequestSchema},
-        defaultConfig: DefaultConfig,
-        request: (arg: { ctx: IConfig; options: IRequest }) => Promise<IPaymentInfo>;
-    }) => {
-    return (config: Omit<IConfig, keyof DefaultConfig> & Partial<DefaultConfig>) => {
-        const ctx = safeParse(schema.config, { ...defaultConfig, ...config }) as IConfig;
-        const requestPayment = async (options: Parameters<typeof request>['0']['options']) => {
-            options = safeParse(schema.request, options) as IRequest;
+type HandlerConfig = ZodSchema;
+type HandlerRequest = ZodSchema;
+
+type ConfigOptions<HandlerConfig extends ZodSchema, BaseConfigOptions> = z.infer<HandlerConfig> & BaseConfigOptions;
+type RequestOptions<HandlerRequest extends ZodSchema, BaseRequestOptions> = z.infer<HandlerRequest> & BaseRequestOptions;
+
+type HandlerHandlerParams = {
+    schema: {
+        config: HandlerConfig;
+        request: HandlerRequest;
+    };
+    defaultConfig: Partial<ConfigOptions<HandlerConfig, BaseConfigOptions>>;
+    request: (arg: { ctx: ConfigOptions<HandlerConfig, BaseConfigOptions>; options: RequestOptions<HandlerRequest, BaseRequestOptions> }) => Promise<IPaymentInfo>;
+};
+
+export const defineHandler = ({
+    schema,
+    defaultConfig,
+    request
+}: HandlerHandlerParams) => {
+    return (config: Omit<ConfigOptions<HandlerConfig, BaseConfigOptions>, keyof Partial<ConfigOptions<HandlerConfig, BaseConfigOptions>>> & Partial<Partial<ConfigOptions<HandlerConfig, BaseConfigOptions>>>) => {
+        const ctx = safeParse(schema.config, { ...defaultConfig, ...config }) as ConfigOptions<HandlerConfig, BaseConfigOptions>;
+        const requestPayment = async (options: Parameters<typeof request>[0]['options']) => {
+            options = safeParse(schema.request, options) as RequestOptions<HandlerRequest, BaseRequestOptions>;
             const paymentInfo = await request({ ctx, options });
             return {
                 ...paymentInfo,
@@ -40,4 +53,4 @@ export const defineHandler = <DriverConfigSchema extends ZodSchema,
             request: requestPayment,
         };
     };
-    }
+};
