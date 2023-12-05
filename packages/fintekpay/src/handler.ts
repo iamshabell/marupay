@@ -2,7 +2,7 @@ import { safeParse } from 'utils/safeParser';
 import { z, ZodSchema } from 'zod';
 
 interface IPaymentInfo {
-    transactionId: string;
+    transactionId: string
     paymentStatus: string;
     referenceId: string;
 }
@@ -19,30 +19,33 @@ export const baseRequestSchema = z.object({
 
 export type BaseRequestOptions = z.infer<typeof baseRequestSchema>;
 
-type HandlerConfig = ZodSchema;
-type HandlerRequest = ZodSchema;
-
-type ConfigOptions<HandlerConfig extends ZodSchema, BaseConfigOptions> = z.infer<HandlerConfig> & BaseConfigOptions;
-type RequestOptions<HandlerRequest extends ZodSchema, BaseRequestOptions> = z.infer<HandlerRequest> & BaseRequestOptions;
-
-type HandlerHandlerParams = {
+type HandlerParams<
+    HandlerConfigSchema extends ZodSchema,
+    HandlerRequestSchema extends ZodSchema,
+    IConfig extends z.infer<HandlerConfigSchema> & BaseConfigOptions,
+    IRequest extends z.infer<HandlerRequestSchema> & BaseRequestOptions,
+    DefaultConfig extends Partial<IConfig>
+> = {
     schema: {
-        config: HandlerConfig;
-        request: HandlerRequest;
+        config: HandlerConfigSchema;
+        request: HandlerRequestSchema;
     };
-    defaultConfig: Partial<ConfigOptions<HandlerConfig, BaseConfigOptions>>;
-    request: (arg: { ctx: ConfigOptions<HandlerConfig, BaseConfigOptions>; options: RequestOptions<HandlerRequest, BaseRequestOptions> }) => Promise<IPaymentInfo>;
+    defaultConfig: DefaultConfig;
+    request: (arg: { ctx: IConfig; options: IRequest }) => Promise<IPaymentInfo>
 };
 
-export const defineHandler = ({
-    schema,
-    defaultConfig,
-    request
-}: HandlerHandlerParams) => {
-    return (config: Omit<ConfigOptions<HandlerConfig, BaseConfigOptions>, keyof Partial<ConfigOptions<HandlerConfig, BaseConfigOptions>>> & Partial<Partial<ConfigOptions<HandlerConfig, BaseConfigOptions>>>) => {
-        const ctx = safeParse(schema.config, { ...defaultConfig, ...config }) as ConfigOptions<HandlerConfig, BaseConfigOptions>;
-        const requestPayment = async (options: Parameters<typeof request>[0]['options']) => {
-            options = safeParse(schema.request, options) as RequestOptions<HandlerRequest, BaseRequestOptions>;
+
+export const defineHandler = <
+    HandlerConfigSchema extends ZodSchema,
+    HandlerRequestSchema extends ZodSchema,
+    IConfig extends z.infer<HandlerConfigSchema> & BaseConfigOptions,
+    IRequest extends z.infer<HandlerRequestSchema> & BaseRequestOptions,
+    DefaultConfig extends Partial<IConfig>
+>({ schema, defaultConfig, request }: HandlerParams<HandlerConfigSchema, HandlerRequestSchema, IConfig, IRequest, DefaultConfig>) => {
+    return (config: Omit<IConfig, keyof DefaultConfig> & Partial<DefaultConfig>) => {
+        const ctx = safeParse(schema.config, { ...defaultConfig, ...config }) as IConfig;
+        const requestPayment = async (options: Parameters<typeof request>['0']['options']) => {
+            options = safeParse(schema.request, options) as IRequest;
             const paymentInfo = await request({ ctx, options });
             return {
                 ...paymentInfo,
