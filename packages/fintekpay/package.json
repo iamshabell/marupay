@@ -3,8 +3,8 @@
     "version": "0.0.1",
     "description": "A package for making payment transactions with different african payments gateways.",
     "license": "MIT",
-    "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
+    "main": "src/index.ts",
+    "types": "src/index.ts",
     "scripts": {
         "prebuild": "rimraf dist",
         "build": "tsc --build ./tsconfig.build.json",
@@ -36,7 +36,7 @@
         "eslint": "^8.23.0",
         "eslint-config-custom": "*",
         "jest": "^29.0.3",
-        "np": "^7.6.2",
+        "np": "^9.0.0",
         "prettier": "^2.7.1",
         "ts-jest": "^29.0.0",
         "ts-node": "^10.9.1",
@@ -44,7 +44,7 @@
     },
     "dependencies": {
         "@keivan.sf/rsa-xml": "^0.1.1",
-        "axios": "^0.27.2",
+        "axios": "^1.6.2",
         "crc-32": "^1.2.2",
         "crypto-js": "^4.1.1",
         "global": "^4.4.0",

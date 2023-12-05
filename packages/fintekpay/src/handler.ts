@@ -1,4 +1,4 @@
-import { safeParse } from 'utils/safeParser';
+import { safeParse } from './utils/safeParser';
 import { z, ZodSchema } from 'zod';
 
 interface IPaymentInfo {
@@ -43,9 +43,10 @@ export const defineHandler = <
     DefaultConfig extends Partial<IConfig>
 >({ schema, defaultConfig, request }: HandlerParams<HandlerConfigSchema, HandlerRequestSchema, IConfig, IRequest, DefaultConfig>) => {
     return (config: Omit<IConfig, keyof DefaultConfig> & Partial<DefaultConfig>) => {
+        console.log(`config: ${JSON.stringify(config)}`);
         const ctx = safeParse(schema.config, { ...defaultConfig, ...config }) as IConfig;
+        console.log(`parsed config: ${JSON.stringify(config)}`);
         const requestPayment = async (options: Parameters<typeof request>['0']['options']) => {
-            options = safeParse(schema.request, options) as IRequest;
             const paymentInfo = await request({ ctx, options });
             return {
                 ...paymentInfo,
