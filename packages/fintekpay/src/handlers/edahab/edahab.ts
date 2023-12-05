@@ -4,7 +4,7 @@ import { generateUuid } from '../../utils/generateUuid';
 import { defineHandler } from '../../handler';
 import * as API from './api';
 import { hashSecretKey } from './hash';
-import { Ctx, Options } from './types';
+import { Ctx, Options } from '../types';
 
 export const createEdahabHandler = defineHandler({
     schema: {
