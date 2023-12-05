@@ -1,4 +1,4 @@
-export type Ctx = {
+export type PaymentCtx = {
     apiKey: string;
     secretKey: string;
     merchantId: string;
@@ -7,7 +7,7 @@ export type Ctx = {
     };
 } & {}
 
-export type Options = {} & {
+export type PaymentOptions = {} & {
     accountNumber: string;
     amount: number;
     currency: string;

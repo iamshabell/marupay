@@ -4,7 +4,7 @@ import { generateUuid } from '../../utils/generateUuid';
 import { defineHandler } from '../../handler';
 import * as API from './api';
 import { hashSecretKey } from './hash';
-import { Ctx, Options } from '../types';
+import { PaymentCtx, PaymentOptions } from '../types';
 
 export const createEdahabHandler = defineHandler({
     schema: {
@@ -23,7 +23,7 @@ export const createEdahabHandler = defineHandler({
             request: 'https://edahab.net/api/api/issueinvoice?hash=',
         },
     },
-    request: async ({ ctx, options }: { ctx: Ctx, options: Options }) => {
+    request: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
         const { amount, accountNumber, currency, description } = options;
         const { links, apiKey, merchantId } = ctx;
 
