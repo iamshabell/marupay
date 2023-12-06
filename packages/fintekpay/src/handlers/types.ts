@@ -3,7 +3,9 @@ export type PaymentCtx = {
     secretKey: string;
     merchantId: string;
     links: {
-        request: string;
+        baseUrl: string;
+        requestUrl: string;
+        creditUrl: string;
     };
 } & {}
 

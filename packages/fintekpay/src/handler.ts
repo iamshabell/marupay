@@ -22,26 +22,32 @@ export type BaseRequestOptions = z.infer<typeof baseRequestSchema>;
 type HandlerParams<
     HandlerConfigSchema extends ZodSchema,
     HandlerRequestSchema extends ZodSchema,
+    HandlerCreditSchema extends ZodSchema,
     IConfig extends z.infer<HandlerConfigSchema> & BaseConfigOptions,
     IRequest extends z.infer<HandlerRequestSchema> & BaseRequestOptions,
+    ICredit extends z.infer<HandlerCreditSchema> & BaseRequestOptions,
     DefaultConfig extends Partial<IConfig>
 > = {
     schema: {
         config: HandlerConfigSchema;
         request: HandlerRequestSchema;
+        credit: HandlerCreditSchema;
     };
     defaultConfig: DefaultConfig;
-    request: (arg: { ctx: IConfig; options: IRequest }) => Promise<IPaymentInfo>
+    request: (arg: { ctx: IConfig; options: IRequest }) => Promise<IPaymentInfo>,
+    credit: (arg: { ctx: IConfig; options: ICredit }) => Promise<IPaymentInfo>
 };
 
 
 export const defineHandler = <
     HandlerConfigSchema extends ZodSchema,
     HandlerRequestSchema extends ZodSchema,
+    HandlerCreditSchema extends ZodSchema,
     IConfig extends z.infer<HandlerConfigSchema> & BaseConfigOptions,
     IRequest extends z.infer<HandlerRequestSchema> & BaseRequestOptions,
+    ICredit extends z.infer<HandlerCreditSchema> & BaseRequestOptions,
     DefaultConfig extends Partial<IConfig>
->({ schema, defaultConfig, request }: HandlerParams<HandlerConfigSchema, HandlerRequestSchema, IConfig, IRequest, DefaultConfig>) => {
+>({ schema, defaultConfig, request, credit }: HandlerParams<HandlerConfigSchema, HandlerRequestSchema, HandlerCreditSchema, IConfig, IRequest, ICredit, DefaultConfig>) => {
     return (config: Omit<IConfig, keyof DefaultConfig> & Partial<DefaultConfig>) => {
         console.log(`config: ${JSON.stringify(config)}`);
         const ctx = safeParse(schema.config, { ...defaultConfig, ...config }) as IConfig;
@@ -53,8 +59,16 @@ export const defineHandler = <
             };
         };
 
+        const creditPayment = async (options: Parameters<typeof request>['0']['options']) => {
+            const creditInfo = await credit({ ctx, options });
+            return {
+                ...creditInfo,
+            };
+        };
+
         return {
             request: requestPayment,
+            credit: creditPayment
         };
     };
 };

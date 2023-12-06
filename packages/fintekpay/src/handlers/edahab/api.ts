@@ -16,3 +16,18 @@ export interface RequestPaymentRes {
     StatusDescription: string;
     ValidationErrors?: string;
 }
+
+export interface CreditPaymentReq {
+    apiKey?: string;
+    phoneNumber: string;
+    transactionAmount: number;
+    currency?: string;
+    transactionId: string;
+}
+
+export interface CreditPaymentRes {
+    TransactionStatus: string;
+    TransactionMesage: string;
+    PhoneNumber: string;
+    TransactionId: string;
+}

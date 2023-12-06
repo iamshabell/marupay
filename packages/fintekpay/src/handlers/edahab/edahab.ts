@@ -13,14 +13,19 @@ export const createEdahabHandler = defineHandler({
             secretKey: z.string(),
             merchantId: z.string(),
             links: z.object({
-                request: z.string()
+                baseUrl: z.string(),
+                requestUrl: z.string(),
+                creditUrl: z.string(),
             }),
         }),
         request: z.object({}),
+        credit: z.object({}),
     },
     defaultConfig: {
         links: {
-            request: 'https://edahab.net/api/api/issueinvoice?hash=',
+            baseUrl: 'https://edahab.net/api',
+            requestUrl: '/api/issueinvoice?hash=',
+            creditUrl: '/api/agentPayment?hash=',
         },
     },
     request: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
@@ -29,7 +34,9 @@ export const createEdahabHandler = defineHandler({
 
         const hashCode = hashSecretKey({ apiKey, edahabNumber: accountNumber, amount, currency, agentCode: merchantId, description }, ctx.secretKey);
 
-        const response = await axios.post<API.RequestPaymentReq, { data: API.RequestPaymentRes }>(`${links.request}${hashCode}`, {
+        const requestUrl = `${links.baseUrl + links.requestUrl + hashCode}`;
+
+        const response = await axios.post<API.RequestPaymentReq, { data: API.RequestPaymentRes }>(requestUrl, {
             apiKey,
             edahabNumber: accountNumber,
             amount,
@@ -50,6 +57,50 @@ export const createEdahabHandler = defineHandler({
         return {
             transactionId: TransactionId,
             paymentStatus: InvoiceStatus,
+            referenceId: generateUuid(),
+        };
+    },
+
+    credit: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
+        const { amount, accountNumber, currency, description } = options;
+        const { links, apiKey } = ctx;
+        const referenceId = generateUuid();
+
+        const hashCode = hashSecretKey({ apiKey, phoneNumber: accountNumber, transactionAmount: amount, transactionId: referenceId, currency, description }, ctx.secretKey);
+
+        const creditUrl = `${links.baseUrl + links.creditUrl + hashCode}`;
+
+        const response = await axios.post<API.CreditPaymentReq, { data: API.CreditPaymentRes }>(creditUrl, {
+            apiKey,
+            phoneNumber: accountNumber,
+            transactionAmount: amount,
+            transactionId: referenceId,
+            currency,
+            description,
+        })
+            .catch((e) => {
+                return {
+                    data: {
+                        PhoneNumber: accountNumber,
+                        TransactionId: referenceId,
+                        TransactionStatus: 'error',
+                        TransactionMesage: e.message,
+                    } as API.CreditPaymentRes,
+                };
+            });
+            
+        const { TransactionId, TransactionMesage, TransactionStatus } = response.data;
+
+        const responseCode = `${TransactionStatus}`;
+
+        if (responseCode === 'error') {
+            console.log(`credit error: ${TransactionMesage}`);
+            throw TransactionMesage;
+        }
+
+        return {
+            transactionId: TransactionId,
+            paymentStatus: TransactionStatus,
             referenceId: generateUuid(),
         };
     },
