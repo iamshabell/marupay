@@ -6,7 +6,7 @@ import * as API from './api';
 import { hashSecretKey } from './hash';
 import { PaymentCtx, PaymentOptions } from '../types';
 
-export const createEdahabHandler = defineHandler({
+const createEdahabHandler = defineHandler({
     schema: {
         config: z.object({
             apiKey: z.string(),
@@ -29,6 +29,21 @@ export const createEdahabHandler = defineHandler({
         },
     },
     request: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
+        const requestFn = async (url: string, data: any) => {
+            const response = await axios.post<API.RequestPaymentReq, { data: API.RequestPaymentRes }>(url, data);
+            const { TransactionId, InvoiceStatus, StatusCode, StatusDescription } = response.data;
+            const responseCode = `${StatusCode}`;
+            if (responseCode !== '0') {
+                console.log(`${StatusDescription}`);
+                throw responseCode;
+            }
+            return {
+                transactionId: TransactionId,
+                paymentStatus: InvoiceStatus,
+                referenceId: generateUuid(),
+            };
+        };
+
         const { amount, accountNumber, currency, description } = options;
         const { links, apiKey, merchantId } = ctx;
 
@@ -36,7 +51,7 @@ export const createEdahabHandler = defineHandler({
 
         const requestUrl = `${links.baseUrl + links.requestUrl + hashCode}`;
 
-        const response = await axios.post<API.RequestPaymentReq, { data: API.RequestPaymentRes }>(requestUrl, {
+        return await requestFn(requestUrl, {
             apiKey,
             edahabNumber: accountNumber,
             amount,
@@ -44,41 +59,10 @@ export const createEdahabHandler = defineHandler({
             agentCode: merchantId,
             description,
         });
-
-        const { TransactionId, InvoiceStatus, StatusCode, StatusDescription } = response.data;
-
-        const responseCode = `${StatusCode}`;
-
-        if (responseCode !== '0') {
-            console.log(`${StatusDescription}`);
-            throw responseCode;
-        }
-
-        return {
-            transactionId: TransactionId,
-            paymentStatus: InvoiceStatus,
-            referenceId: generateUuid(),
-        };
     },
-
     credit: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
-        const { amount, accountNumber, currency, description } = options;
-        const { links, apiKey } = ctx;
-        const referenceId = generateUuid();
-
-        const hashCode = hashSecretKey({ apiKey, phoneNumber: accountNumber, transactionAmount: amount, transactionId: referenceId, currency, description }, ctx.secretKey);
-
-        const creditUrl = `${links.baseUrl + links.creditUrl + hashCode}`;
-
-        const response = await axios.post<API.CreditPaymentReq, { data: API.CreditPaymentRes }>(creditUrl, {
-            apiKey,
-            phoneNumber: accountNumber,
-            transactionAmount: amount,
-            transactionId: referenceId,
-            currency,
-            description,
-        })
-            .catch((e) => {
+        const requestFn = async (url: string, data: any) => {
+            const response = await axios.post<API.CreditPaymentReq, { data: API.CreditPaymentRes }>(url, data).catch((e) => {
                 return {
                     data: {
                         PhoneNumber: accountNumber,
@@ -88,21 +72,38 @@ export const createEdahabHandler = defineHandler({
                     } as API.CreditPaymentRes,
                 };
             });
-            
-        const { TransactionId, TransactionMesage, TransactionStatus } = response.data;
 
-        const responseCode = `${TransactionStatus}`;
+            const { TransactionId, TransactionMesage, TransactionStatus } = response.data;
+            const responseCode = `${TransactionStatus}`;
 
-        if (responseCode === 'error') {
-            console.log(`credit error: ${TransactionMesage}`);
-            throw TransactionMesage;
-        }
+            if (responseCode === 'error') {
+                console.log(`credit error: ${TransactionMesage}`);
+                throw TransactionMesage;
+            }
 
-        return {
-            transactionId: TransactionId,
-            paymentStatus: TransactionStatus,
-            referenceId: generateUuid(),
+            return {
+                transactionId: TransactionId,
+                paymentStatus: TransactionStatus,
+                referenceId: generateUuid(),
+            };
         };
+
+        const { amount, accountNumber, currency, description } = options;
+        const { links, apiKey } = ctx;
+        const referenceId = generateUuid();
+
+        const hashCode = hashSecretKey({ apiKey, phoneNumber: accountNumber, transactionAmount: amount, transactionId: referenceId, currency, description }, ctx.secretKey);
+
+        const creditUrl = `${links.baseUrl + links.creditUrl + hashCode}`;
+
+        return await requestFn(creditUrl, {
+            apiKey,
+            phoneNumber: accountNumber,
+            transactionAmount: amount,
+            transactionId: referenceId,
+            currency,
+            description,
+        });
     },
 });
 
