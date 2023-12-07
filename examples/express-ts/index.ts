@@ -1,6 +1,7 @@
 import { config } from 'dotenv';
 import express from 'express';
 import { HandlerName, ConfigObject, getPaymentHandler} from 'fintekpay';
+import { env } from 'process';
 config();
 const app = express();
 const port = 3002;
@@ -9,14 +10,14 @@ app.use(express.urlencoded({ extended: true }));
 
 const fintekpayConfiguration: ConfigObject = {
     edahab: {
-        apiKey: "",
-        secretKey: "",
-        merchantId: "",
+        apiKey: env.DAHAB_API_KEY!,
+        secretKey: env.DAHAB_SECRET_KEY!,
+        merchantId: env.DAHAB_AGENT_CODE!,
     },
     waafi: {
-        apiKey: "",
-        secretKey: "",
-        merchantId: "",
+        apiKey: env.WAAFI_API_KEY!,
+        secretKey: env.WAAFI_API_USER_ID!,
+        merchantId: env.WAAFI_MERCHANT_KEY!,
     },
 };
 
