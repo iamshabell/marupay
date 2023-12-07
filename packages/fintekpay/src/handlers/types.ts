@@ -4,8 +4,8 @@ export type PaymentCtx = {
     merchantId: string;
     links: {
         baseUrl: string;
-        requestUrl: string;
-        creditUrl: string;
+        requestUrl?: string;
+        creditUrl?: string;
     };
 } & {}
 
@@ -14,4 +14,5 @@ export type PaymentOptions = {} & {
     amount: number;
     currency: string;
     description?: string | undefined;
+    accountType?: 'MERCHANT' | 'CUSTOMER'
 }

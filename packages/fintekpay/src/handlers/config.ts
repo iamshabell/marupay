@@ -1,7 +1,12 @@
 export type ConfigObject = {
-    edahab: {
+    edahab?: {
         apiKey: string
         secretKey: string
         merchantId: string
-    }
+    },
+    waafi?: {
+        apiKey: string
+        secretKey: string
+        merchantId: string
+    },
 }
