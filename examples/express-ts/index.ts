@@ -13,13 +13,19 @@ const fintekpayConfiguration: ConfigObject = {
         secretKey: "",
         merchantId: "",
     },
+    waafi: {
+        apiKey: "",
+        secretKey: "",
+        merchantId: "",
+    },
 };
 
 const chosenHandler: HandlerName = 'edahab';
+const chosenHandler2: HandlerName = 'waafi';
 
-app.get('/purchase', async (req, res) => {
+app.get('/purchaseEdahab', async (req, res) => {
     try {
-        const handler = getPaymentHandler(chosenHandler)(fintekpayConfiguration[chosenHandler]);
+        const handler = getPaymentHandler(chosenHandler)(fintekpayConfiguration[chosenHandler]!);
 
         const paymentInfo = await handler.request({
             accountNumber: "657502302",
@@ -34,12 +40,47 @@ app.get('/purchase', async (req, res) => {
     }
 });
 
-app.get('/credit', async (req, res) => {
+app.get('/purchaseWaafi', async (req, res) => {
     try {
-        const handler = getPaymentHandler(chosenHandler)(fintekpayConfiguration[chosenHandler]);
+        const handler = getPaymentHandler(chosenHandler2)(fintekpayConfiguration[chosenHandler2]!);
+
+        const paymentInfo = await handler.request({
+            accountNumber: "252634034190",
+            amount: 500,
+            currency: "SLSH",
+            description: "test payment",
+            accountType: 'CUSTOMER',
+        });
+
+        res.send(paymentInfo);
+    } catch (e) {
+        console.log(e);
+    }
+});
+
+app.get('/creditEdahab', async (req, res) => {
+    try {
+        const handler = getPaymentHandler(chosenHandler)(fintekpayConfiguration[chosenHandler]!);
 
         const paymentInfo = await handler.credit({
             accountNumber: "657502302",
+            amount: 1000,
+            currency: "SLSH",
+            description: "test payment",
+        });
+
+        res.send(paymentInfo);
+    } catch (e) {
+        console.log(e);
+    }
+});
+
+app.get('/creditWaafi', async (req, res) => {
+    try {
+        const handler = getPaymentHandler(chosenHandler2)(fintekpayConfiguration[chosenHandler2]!);
+
+        const paymentInfo = await handler.credit({
+            accountNumber: "252634034190",
             amount: 1000,
             currency: "SLSH",
             description: "test payment",
