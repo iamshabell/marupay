@@ -6,7 +6,7 @@ import * as API from './api';
 import { hashSecretKey } from './hash';
 import { PaymentCtx, PaymentOptions } from '../types';
 
-const createEdahabHandler = defineHandler({
+export const createEdahabHandler = defineHandler({
     schema: {
         config: z.object({
             apiKey: z.string(),
