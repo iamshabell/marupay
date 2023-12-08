@@ -1,81 +1,132 @@
-# Turborepo starter
+# Marupay SDK
 
-This is an official starter Turborepo.
+The Marupay SDK is a npm library that provides an easy-to-use interface for integrating with the multiple payment systems. 
 
-## Using this example
+## This SDK offers
+- Edahab API
+- Waafi API
 
-Run the following command:
+
+## Installation
+
+To use the Marupay SDK in your project, you can install it using npm:
 
 ```sh
-npx create-turbo@latest
+npm install marupay
 ```
 
-## What's inside?
+## Usage
 
-This Turborepo includes the following packages/apps:
+To get started, import the necessary modules and configure the SDK with your credentials. The following example demonstrates how to set up the SDK for both eDahab and Waafi:
 
-### Apps and Packages
+```typescript
+import { config } from 'dotenv';
+import express from 'express';
+import { HandlerName, ConfigObject, getPaymentHandler} from 'marupay';
+import { env } from 'process';
+config();
+const app = express();
+const port = 3002;
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `ui`: a stub React component library shared by both `web` and `docs` applications
-- `eslint-config-custom`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `tsconfig`: `tsconfig.json`s used throughout the monorepo
+app.use(express.urlencoded({ extended: true }));
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+const marupayConfiguration: ConfigObject = {
+    edahab: {
+        apiKey: env.DAHAB_API_KEY!,
+        secretKey: env.DAHAB_SECRET_KEY!,
+        merchantId: env.DAHAB_AGENT_CODE!,
+    },
+    waafi: {
+        apiKey: env.WAAFI_API_KEY!,
+        secretKey: env.WAAFI_API_USER_ID!,
+        merchantId: env.WAAFI_MERCHANT_KEY!,
+    },
+};
 
-### Utilities
+const chosenHandler: HandlerName = 'edahab';
+const chosenHandler2: HandlerName = 'waafi';
 
-This Turborepo has some additional tools already setup for you:
+app.get('/purchaseEdahab', async (req, res) => {
+    try {
+        const handler = getPaymentHandler(chosenHandler)(marupayConfiguration[chosenHandler]!);
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+        const paymentInfo = await handler.request({
+            accountNumber: "651234567",
+            amount: 500,
+            currency: "SLSH",
+            description: "test payment",
+        });
 
-### Build
+        res.send(paymentInfo);
+    } catch (e) {
+        console.log(e);
+    }
+});
 
-To build all apps and packages, run the following command:
+app.get('/purchaseWaafi', async (req, res) => {
+    try {
+        const handler = getPaymentHandler(chosenHandler2)(marupayConfiguration[chosenHandler2]!);
 
+        const paymentInfo = await handler.request({
+            accountNumber: "252612345678",
+            amount: 500,
+            currency: "SLSH",
+            description: "test payment",
+            accountType: 'CUSTOMER',
+        });
+
+        res.send(paymentInfo);
+    } catch (e) {
+        console.log(e);
+    }
+});
+
+app.get('/creditEdahab', async (req, res) => {
+    try {
+        const handler = getPaymentHandler(chosenHandler)(marupayConfiguration[chosenHandler]!);
+
+        const paymentInfo = await handler.credit({
+            accountNumber: "651234567,
+            amount: 1000,
+            currency: "SLSH",
+            description: "test payment",
+        });
+
+        res.send(paymentInfo);
+    } catch (e) {
+        console.log(e);
+    }
+});
+
+app.get('/creditWaafi', async (req, res) => {
+    try {
+        const handler = getPaymentHandler(chosenHandler2)(marupayConfiguration[chosenHandler2]!);
+
+        const paymentInfo = await handler.credit({
+            accountNumber: "2526312345678",
+            amount: 1000,
+            currency: "SLSH",
+            description: "test payment",
+        });
+
+        res.send(paymentInfo);
+    } catch (e) {
+        console.log(e);
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Example app listening at http://localhost:${port}`);
+});
 ```
-cd my-turborepo
-pnpm build
-```
 
-### Develop
+### Examples
 
-To develop all apps and packages, run the following command:
+The provided examples demonstrate how to use the Marupay SDK for both purchase and credit transactions with eDahab and Waafi payment handlers. Customize the route handlers according to your application's needs.
 
-```
-cd my-turborepo
-pnpm dev
-```
+### Contributing
+If you encounter any issues or have suggestions for improvements, feel free to contribute by opening [issues]('https://github.com/iamshabell/marupay/issues') or submitting [pull requests]('https://github.com/iamshabell/marupay/pulls') on the GitHub repository.
 
-### Remote Caching
+### License
 
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
-
-```
-cd my-turborepo
-npx turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-npx turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+This SDK is released under the MIT License. Feel free to use, modify, and distribute it as needed for your projects.
