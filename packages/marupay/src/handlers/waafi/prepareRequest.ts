@@ -1,4 +1,4 @@
-import { PaymentCtx, PaymentOptions } from '../../handlers/types';
+import { PaymentCtx, PaymentOptions } from '../types';
 import * as API from './api';
 import { generateUuid } from '../../utils/generateUuid';
 

@@ -445,7 +445,7 @@ finalhandler@1.2.0:
     statuses "2.0.1"
     unpipe "~1.0.0"
 
-"fintekpay@file:../../packages/fintekpay":
+"marupay@file:../../packages/marupay":
   version "0.0.1"
   dependencies:
     "@keivan.sf/rsa-xml" "^0.1.1"

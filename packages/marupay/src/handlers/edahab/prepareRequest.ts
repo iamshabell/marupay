@@ -1,4 +1,4 @@
-import { PaymentCtx, PaymentOptions } from '../../handlers/types';
+import { PaymentCtx, PaymentOptions } from '../types';
 import * as API from './api';
 
 export const prepareRequest = (paymentType: "request" | "credit", data: PaymentOptions, ctx: PaymentCtx, referenceId: string): API.RequestData | API.RequestPaymentData | API.CreditPaymentData => {

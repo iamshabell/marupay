@@ -11,7 +11,7 @@ export const baseConfigSchema = z.object({});
 export type BaseConfigOptions = z.infer<typeof baseConfigSchema>;
 
 export const baseRequestSchema = z.object({
-    accountNumber: z.string(),
+    accountNumber: z.string().regex(new RegExp(/^252\d{9}$/), 'Invalid Account Number'),
     amount: z.number(),
     currency: z.string(),
     description: z.string().optional(),

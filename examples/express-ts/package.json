@@ -1,5 +1,5 @@
 {
-    "name": "fintekpay-express-ts",
+    "name": "marupay-express-ts",
     "version": "1.0.0",
     "main": "index.js",
     "license": "MIT",
@@ -10,7 +10,7 @@
         "@types/express": "^4.17.13",
         "dotenv": "^10.0.0",
         "express": "^4.17.1",
-        "fintekpay": "file:../../packages/fintekpay"
+        "marupay": "file:../../packages/marupay"
     },
     "devDependencies": {
         "ts-node": "^10.9.1",
