@@ -5,6 +5,7 @@ import { defineHandler } from '../../handler';
 import * as API from './api';
 import { hashSecretKey } from './hash';
 import { PaymentCtx, PaymentOptions } from '../types';
+import { prepareRequest } from './prepareRequest';
 
 export const createEdahabHandler = defineHandler({
     schema: {
@@ -29,7 +30,7 @@ export const createEdahabHandler = defineHandler({
         },
     },
     request: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
-        const requestFn = async (url: string, data: any) => {
+        const requestFn = async (url: string, data: API.RequestPaymentData, referenceId: string) => {
             const response = await axios.post<API.RequestPaymentReq, { data: API.RequestPaymentRes }>(url, data);
             const { TransactionId, InvoiceStatus, StatusCode, StatusDescription } = response.data;
             const responseCode = `${StatusCode}`;
@@ -40,32 +41,25 @@ export const createEdahabHandler = defineHandler({
             return {
                 transactionId: TransactionId,
                 paymentStatus: InvoiceStatus,
-                referenceId: generateUuid(),
+                referenceId,
             };
         };
+        const { links } = ctx;
+        const referenceId = generateUuid();
 
-        const { amount, accountNumber, currency, description } = options;
-        const { links, apiKey, merchantId } = ctx;
-
-        const hashCode = hashSecretKey({ apiKey, edahabNumber: accountNumber, amount, currency, agentCode: merchantId, description }, ctx.secretKey);
-
+        const requestData = prepareRequest('request', options, ctx, referenceId) as API.RequestPaymentData;
+        const hashCode = hashSecretKey(requestData, ctx.secretKey);
+        
         const requestUrl = `${links.baseUrl + links.requestUrl + hashCode}`;
 
-        return await requestFn(requestUrl, {
-            apiKey,
-            edahabNumber: accountNumber,
-            amount,
-            currency,
-            agentCode: merchantId,
-            description,
-        });
+        return await requestFn(requestUrl, requestData, referenceId);
     },
     credit: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
-        const requestFn = async (url: string, data: any) => {
+        const requestFn = async (url: string, data: API.CreditPaymentData, referenceId: string) => {
             const response = await axios.post<API.CreditPaymentReq, { data: API.CreditPaymentRes }>(url, data).catch((e) => {
                 return {
                     data: {
-                        PhoneNumber: accountNumber,
+                        PhoneNumber: data.phoneNumber,
                         TransactionId: referenceId,
                         TransactionStatus: 'error',
                         TransactionMesage: e.message,
@@ -87,23 +81,14 @@ export const createEdahabHandler = defineHandler({
                 referenceId: generateUuid(),
             };
         };
-
-        const { amount, accountNumber, currency, description } = options;
-        const { links, apiKey } = ctx;
+        const { links } = ctx;
         const referenceId = generateUuid();
+        const requestData = prepareRequest('credit', options, ctx, referenceId) as API.CreditPaymentData;
 
-        const hashCode = hashSecretKey({ apiKey, phoneNumber: accountNumber, transactionAmount: amount, transactionId: referenceId, currency, description }, ctx.secretKey);
-
+        const hashCode = hashSecretKey(requestData, ctx.secretKey);
         const creditUrl = `${links.baseUrl + links.creditUrl + hashCode}`;
 
-        return await requestFn(creditUrl, {
-            apiKey,
-            phoneNumber: accountNumber,
-            transactionAmount: amount,
-            transactionId: referenceId,
-            currency,
-            description,
-        });
+        return await requestFn(creditUrl, requestData, referenceId);
     },
 });
 

@@ -31,3 +31,15 @@ export interface CreditPaymentRes {
     PhoneNumber: string;
     TransactionId: string;
 }
+
+
+export type RequestData = {
+    apiKey: string,
+    currency: string,
+    description?: string,
+    amount?: number,
+    agentCode?: string,
+}
+
+export type RequestPaymentData = RequestData & { edahabNumber: string }
+export type CreditPaymentData = RequestData & { phoneNumber: string, transactionAmount: number, transactionId: string }
