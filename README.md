@@ -1,3 +1,5 @@
+[![CI](https://github.com/iamshabell/marupay/actions/workflows/main.yml/badge.svg)](https://github.com/iamshabell/marupay/actions/workflows/main.yml)
+
 # Marupay SDK
 
 The Marupay SDK is a npm library that provides an easy-to-use interface for integrating with the multiple payment systems. 
