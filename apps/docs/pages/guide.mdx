@@ -1,0 +1,35 @@
+# Guide for Marupay in your Express.js application:
+
+To start using the MaruPay SDK in your application, the first step is to configure it with the necessary details for different payment handlers. Below is an example of how you can set up the configuration object.
+
+```typescript
+import { config } from 'dotenv';
+import express from 'express';
+import { HandlerName, ConfigObject, getPaymentHandler } from 'marupay';
+import { env } from 'process';
+
+// Load environment variables from a .env file
+config();
+
+const app = express();
+const port = 3002;
+
+app.use(express.urlencoded({ extended: true }));
+
+// Configuration for different payment handlers (e.g., edahab, waafi)
+const paymentConfig: ConfigObject = {
+    edahab: {
+        apiKey: env.DAHAB_API_KEY!,
+        secretKey: env.DAHAB_SECRET_KEY!,
+        merchantId: env.DAHAB_AGENT_CODE!,
+    },
+    waafi: {
+        apiKey: env.WAAFI_API_KEY!,
+        secretKey: env.WAAFI_API_USER_ID!,
+        merchantId: env.WAAFI_MERCHANT_KEY!,
+    },
+};
+
+```
+
+The `paymentConfig` object holds the necessary information for different payment handlers, such as `edahab` and `waafi`. Each handler has specific details, including the API Key, Secret Key, and Merchant ID.
