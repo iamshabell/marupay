@@ -47,7 +47,7 @@ app.get('/purchaseWaafi', async (req, res) => {
 
         const paymentInfo = await handler.request({
             accountNumber: "252634034190",
-            amount: 500,
+            amount: 1500,
             currency: "SLSH",
             description: "test payment",
             accountType: 'CUSTOMER',
