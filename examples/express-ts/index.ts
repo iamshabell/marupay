@@ -1,14 +1,18 @@
 import { config } from 'dotenv';
 import express from 'express';
-import { HandlerName, ConfigObject, getPaymentHandler} from 'marupay';
+import { HandlerName, ConfigObject, getPaymentHandler } from 'marupay';
 import { env } from 'process';
+
+// Load environment variables from a .env file
 config();
+
 const app = express();
 const port = 3002;
 
 app.use(express.urlencoded({ extended: true }));
 
-const marupayConfiguration: ConfigObject = {
+// Configuration for different payment handlers (e.g., edahab, waafi)
+const paymentConfig: ConfigObject = {
     edahab: {
         apiKey: env.DAHAB_API_KEY!,
         secretKey: env.DAHAB_SECRET_KEY!,
@@ -21,78 +25,49 @@ const marupayConfiguration: ConfigObject = {
     },
 };
 
+// Choose a payment handler
 const chosenHandler: HandlerName = 'edahab';
-const chosenHandler2: HandlerName = 'waafi';
 
-app.get('/purchaseEdahab', async (req, res) => {
+app.get('/purchase', async (req, res) => {
     try {
-        const handler = getPaymentHandler(chosenHandler)(marupayConfiguration[chosenHandler]!);
+        // Get the payment handler based on the chosen handler
+        const handler = getPaymentHandler(chosenHandler)(paymentConfig[chosenHandler]!);
 
+        // Make a purchase request
         const paymentInfo = await handler.request({
-            accountNumber: "6512312341", // <- set a test edahab number
+            accountNumber: "6512312341",
             amount: 500,
             currency: "SLSH",
-            description: "test payment",
+            description: "Test purchase",
         });
 
         res.send(paymentInfo);
     } catch (e) {
         console.log(e);
+        res.status(500).send("Internal Server Error");
     }
 });
 
-app.get('/purchaseWaafi', async (req, res) => {
+app.get('/credit', async (req, res) => {
     try {
-        const handler = getPaymentHandler(chosenHandler2)(marupayConfiguration[chosenHandler2]!);
+        // Get the payment handler based on the chosen handler
+        const handler = getPaymentHandler(chosenHandler)(paymentConfig[chosenHandler]!);
 
-        const paymentInfo = await handler.request({
-            accountNumber: "2526123456471", // <- set a test ZAAD, EVC etc number
-            amount: 1500,
-            currency: "SLSH",
-            description: "test payment",
-            accountType: 'CUSTOMER',
-        });
-
-        res.send(paymentInfo);
-    } catch (e) {
-        console.log(e);
-    }
-});
-
-app.get('/creditEdahab', async (req, res) => {
-    try {
-        const handler = getPaymentHandler(chosenHandler)(marupayConfiguration[chosenHandler]!);
-
+        // Credit an account
         const paymentInfo = await handler.credit({
-            accountNumber: "6512312341", // <- set a test edahab number
+            accountNumber: "6512312341",
             amount: 1000,
             currency: "SLSH",
-            description: "test payment",
+            description: "Test credit",
         });
 
         res.send(paymentInfo);
     } catch (e) {
         console.log(e);
-    }
-});
-
-app.get('/creditWaafi', async (req, res) => {
-    try {
-        const handler = getPaymentHandler(chosenHandler2)(marupayConfiguration[chosenHandler2]!);
-
-        const paymentInfo = await handler.credit({
-            accountNumber: "2526123456471",  // <- set a test ZAAD, EVC etc number
-            amount: 1000,
-            currency: "SLSH",
-            description: "test payment",
-        });
-
-        res.send(paymentInfo);
-    } catch (e) {
-        console.log(e);
+        res.status(500).send("Internal Server Error");
     }
 });
 
 app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`);
+    console.log(`Server is listening at http://localhost:${port}`);
 });
