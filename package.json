@@ -12,7 +12,9 @@
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "prettier": "^3.1.0",
-    "turbo": "latest",
+    "turbo": "latest"
+  },
+  "dependencies": {
     "@changesets/cli": "^2.27.1"
   },
   "packageManager": "yarn@1.22.21",
