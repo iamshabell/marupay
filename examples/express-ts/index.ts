@@ -29,7 +29,7 @@ app.get('/purchaseEdahab', async (req, res) => {
         const handler = getPaymentHandler(chosenHandler)(marupayConfiguration[chosenHandler]!);
 
         const paymentInfo = await handler.request({
-            accountNumber: "657502302",
+            accountNumber: "6512312341", // <- set a test edahab number
             amount: 500,
             currency: "SLSH",
             description: "test payment",
@@ -46,7 +46,7 @@ app.get('/purchaseWaafi', async (req, res) => {
         const handler = getPaymentHandler(chosenHandler2)(marupayConfiguration[chosenHandler2]!);
 
         const paymentInfo = await handler.request({
-            accountNumber: "252634034190",
+            accountNumber: "2526123456471", // <- set a test ZAAD, EVC etc number
             amount: 1500,
             currency: "SLSH",
             description: "test payment",
