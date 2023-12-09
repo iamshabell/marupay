@@ -11,8 +11,8 @@
         "sourceMap": true,
         "outDir": "./dist",
         "baseUrl": "./src",
-        "incremental": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "noEmit": true,
     },
     "include": [
         "./src",

@@ -5,7 +5,8 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "publish-package": "turbo run build lint test && changeset version && changeset publish"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",
@@ -13,7 +14,7 @@
     "prettier": "^3.1.0",
     "turbo": "latest"
   },
-  "packageManager": "npm@9.8.1",
+  "packageManager": "yarn@1.22.21",
   "workspaces": [
     "apps/*",
     "packages/*"
