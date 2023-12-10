@@ -10,6 +10,11 @@ const config: DocsThemeConfig = {
   footer: {
     text: 'MaruPay Docs',
   },
+  useNextSeoProps() {
+    return {
+      titleTemplate: '%s – MaruPay'
+    }
+  },
 }
 
 export default config
