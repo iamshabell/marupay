@@ -1,10 +1,10 @@
 # Making Our First Request
-Once you have configured the payment handlers, you can utilize this configuration when making requests using the Marupay SDK. The configuration ensures that the SDK has the required credentials to interact with the specified payment systems.
+*Request is sending a C2B or charging a customer.*
 
-Here's a quick example of how you can use the configuration when making a purchase request:
+Now, let's add a route for making a credit request:
 
 ```typescript
-app.get('/purchase', async (req, res) => {
+app.get('/credit', async (req, res) => {
     try {
         const chosenHandler: HandlerName = 'edahab';
         const handler = getPaymentHandler(chosenHandler)(paymentConfig[chosenHandler]!);

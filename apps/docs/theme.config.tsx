@@ -16,7 +16,12 @@ const config: DocsThemeConfig = {
       <meta property="og:title" content="MaruPay" />
       <meta property="og:description" content="Unifying Payments for Developers" />
     </>
-  )
+  ),
+  useNextSeoProps() {
+    return {
+      titleTemplate: '%s – MaruPay'
+    }
+  },
 }
 
 export default config
