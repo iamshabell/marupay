@@ -4,9 +4,9 @@ import { DocsThemeConfig } from 'nextra-theme-docs'
 const config: DocsThemeConfig = {
   logo: <span>MaruPay</span>,
   project: {
-    link: 'https://github.com/marupay',
+    link: 'https://github.com/iamshabell/marupay',
   },
-  docsRepositoryBase: 'https://github.com/marupay',
+  docsRepositoryBase: 'https://github.com/iamshabell//marupay',
   footer: {
     text: 'MaruPay Docs',
   },
