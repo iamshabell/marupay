@@ -1,3 +1,4 @@
+import { Currency } from './handlers/enums';
 import { safeParse } from './utils/safeParser';
 import { z, ZodSchema } from 'zod';
 
@@ -11,9 +12,9 @@ export const baseConfigSchema = z.object({});
 export type BaseConfigOptions = z.infer<typeof baseConfigSchema>;
 
 export const baseRequestSchema = z.object({
-    accountNumber: z.string().regex(new RegExp(/^252\d{9}$/), 'Invalid Account Number'),
+    accountNumber: z.string(),
     amount: z.number(),
-    currency: z.string(),
+    currency: z.nativeEnum(Currency),
     description: z.string().optional(),
 });
 

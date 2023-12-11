@@ -12,7 +12,7 @@ app.get('/credit', async (req, res) => {
         const paymentInfo = await handler.request({
             accountNumber: "6512312341",
             amount: 500,
-            currency: "SLSH",
+            currency: Currency.SLSH,
             description: "Test purchase",
         });
 
