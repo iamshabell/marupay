@@ -24,7 +24,7 @@ To get started, import the necessary modules and configure the SDK with your cre
 ```typescript
 import { config } from 'dotenv';
 import express from 'express';
-import { HandlerName, ConfigObject, getPaymentHandler } from 'marupay';
+import { HandlerName, ConfigObject, getPaymentHandler, Currency } from 'marupay';
 import { env } from 'process';
 
 // Load environment variables from a .env file
@@ -61,7 +61,7 @@ app.get('/purchase', async (req, res) => {
         const paymentInfo = await handler.request({
             accountNumber: "6512312341",
             amount: 500,
-            currency: "SLSH",
+            currency: Currency.SLSH,
             description: "Test purchase",
         });
 
@@ -81,7 +81,7 @@ app.get('/credit', async (req, res) => {
         const paymentInfo = await handler.credit({
             accountNumber: "6512312341",
             amount: 1000,
-            currency: "SLSH",
+            currency: Currency.SLSH,
             description: "Test credit",
         });
 
