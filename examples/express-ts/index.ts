@@ -35,7 +35,7 @@ app.get('/purchase', async (req, res) => {
 
         // Make a purchase request
         const paymentInfo = await handler.request({
-            accountNumber: "6512312341",
+            accountNumber: "+2526512312341", // must start with `+` followed by country code
             amount: 500,
             currency: Currency.SLSH,
             description: "Test purchase",
@@ -55,7 +55,7 @@ app.get('/credit', async (req, res) => {
 
         // Credit an account
         const paymentInfo = await handler.credit({
-            accountNumber: "6512312341",
+            accountNumber: "+2526512312341", // must start with `+` followed by country code
             amount: 1000,
             currency: Currency.SLSH,
             description: "Test credit",
