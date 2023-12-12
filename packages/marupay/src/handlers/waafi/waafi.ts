@@ -5,6 +5,12 @@ import { defineHandler } from '../../handler';
 import * as API from './api';
 import { PaymentCtx, PaymentOptions } from '../types';
 import { prepareRequest } from './prepareRequest';
+import { safeParse } from '../../utils/safeParser';
+import { soRequestNumber } from 'handlers/constants';
+
+const waafiRequest = z.object({
+    accountNumber: soRequestNumber,
+});
 
 export const createWaafiHandler = defineHandler({
     schema: {
@@ -16,9 +22,10 @@ export const createWaafiHandler = defineHandler({
                 baseUrl: z.string(),
             }),
         }),
-        request: z.object({}),
+        request: waafiRequest,
         credit: z.object({
             accountType: z.enum(['MERCHANT', 'CUSTOMER']).optional(),
+            ...waafiRequest.shape,
         }).optional(),
     },
     defaultConfig: {
@@ -27,6 +34,8 @@ export const createWaafiHandler = defineHandler({
         },
     },
     request: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
+        const parsedData = safeParse(waafiRequest.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
+        const accountNumber = parsedData.accountNumber.replace("+", '');
         const requestFn = async (url: string, data: API.RequestData) => {
             const response = await axios.post<API.RequestPaymentReq, { data: API.RequestPaymentRes }>(url, data);
             const { responseCode, responseMsg, errorCode, params } = response.data;
@@ -46,11 +55,13 @@ export const createWaafiHandler = defineHandler({
         const { links } = ctx;
 
         const requestUrl = `${links.baseUrl}`;
-        const requestData = prepareRequest('request', options, ctx, referenceId);
+        const requestData = prepareRequest('request', { ...options, accountNumber }, ctx, referenceId);
 
         return await requestFn(requestUrl, requestData);
     },
     credit: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
+        const parsedData = safeParse(waafiRequest.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
+        const accountNumber = parsedData.accountNumber.replace("+", '');
         const requestFn = async (url: string, data: API.RequestData) => {
             const response = await axios.post<API.CreditPaymentReq, { data: API.RequestPaymentRes }>(url, data);
             const { responseCode, responseMsg, errorCode, params } = response.data;
@@ -70,7 +81,7 @@ export const createWaafiHandler = defineHandler({
         const { links } = ctx;
 
         const requestUrl = `${links.baseUrl}`;
-        const requestData = prepareRequest('credit', options, ctx, referenceId);
+        const requestData = prepareRequest('credit', { ...options, accountNumber }, ctx, referenceId);
 
         return await requestFn(requestUrl, requestData);
     },
