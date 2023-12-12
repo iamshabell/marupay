@@ -12,7 +12,7 @@ export const baseConfigSchema = z.object({});
 export type BaseConfigOptions = z.infer<typeof baseConfigSchema>;
 
 export const baseRequestSchema = z.object({
-    accountNumber: z.string(),
+    accountNumber: z.string().startsWith('+'),
     amount: z.number(),
     currency: z.nativeEnum(Currency),
     description: z.string().optional(),
@@ -54,13 +54,16 @@ export const defineHandler = <
         const ctx = safeParse(schema.config, { ...defaultConfig, ...config }) as IConfig;
         console.log(`parsed config: ${JSON.stringify(config)}`);
         const requestPayment = async (options: Parameters<typeof request>['0']['options']) => {
+            options = safeParse(baseRequestSchema, options) as IRequest;
             const paymentInfo = await request({ ctx, options });
             return {
                 ...paymentInfo,
             };
         };
-
-        const creditPayment = async (options: Parameters<typeof request>['0']['options']) => {
+        
+        const creditPayment = async (options: Parameters<typeof credit>['0']['options']) => {
+            options = safeParse(baseRequestSchema, options) as ICredit;
+            console.log(`credit options: ${JSON.stringify(options)}`);
             const creditInfo = await credit({ ctx, options });
             return {
                 ...creditInfo,
