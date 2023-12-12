@@ -1,11 +1,17 @@
 import axios from 'axios';
-import { z } from 'zod';
+import { ZodString, z } from 'zod';
 import { generateUuid } from '../../utils/generateUuid';
 import { defineHandler } from '../../handler';
 import * as API from './api';
 import { hashSecretKey } from './hash';
 import { PaymentCtx, PaymentOptions } from '../types';
 import { prepareRequest } from './prepareRequest';
+import { SO_ACCOUNT_NUMBER, soRequestNumber } from '../constants'
+import { safeParse } from '../../utils/safeParser';
+
+const edahabRequest = z.object({
+    accountNumber: soRequestNumber,
+});
 
 export const createEdahabHandler = defineHandler({
     schema: {
@@ -19,8 +25,8 @@ export const createEdahabHandler = defineHandler({
                 creditUrl: z.string(),
             }),
         }),
-        request: z.object({}),
-        credit: z.object({}),
+        request: edahabRequest,
+        credit: edahabRequest,
     },
     defaultConfig: {
         links: {
@@ -30,6 +36,8 @@ export const createEdahabHandler = defineHandler({
         },
     },
     request: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
+        const parsedData = safeParse(edahabRequest.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
+        const accountNumber = parsedData.accountNumber.replace(SO_ACCOUNT_NUMBER, '');
         const requestFn = async (url: string, data: API.RequestPaymentData, referenceId: string) => {
             const response = await axios.post<API.RequestPaymentReq, { data: API.RequestPaymentRes }>(url, data);
             const { TransactionId, InvoiceStatus, StatusCode, StatusDescription } = response.data;
@@ -47,14 +55,16 @@ export const createEdahabHandler = defineHandler({
         const { links } = ctx;
         const referenceId = generateUuid();
 
-        const requestData = prepareRequest('request', options, ctx, referenceId) as API.RequestPaymentData;
+        const requestData = prepareRequest('request', { ...options, accountNumber }, ctx, referenceId) as API.RequestPaymentData;
         const hashCode = hashSecretKey(requestData, ctx.secretKey);
-        
+
         const requestUrl = `${links.baseUrl + links.requestUrl + hashCode}`;
 
         return await requestFn(requestUrl, requestData, referenceId);
     },
     credit: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
+        const parsedData = safeParse(edahabRequest.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
+        const accountNumber = parsedData.accountNumber.replace(SO_ACCOUNT_NUMBER, '');
         const requestFn = async (url: string, data: API.CreditPaymentData, referenceId: string) => {
             const response = await axios.post<API.CreditPaymentReq, { data: API.CreditPaymentRes }>(url, data).catch((e) => {
                 return {
@@ -83,7 +93,7 @@ export const createEdahabHandler = defineHandler({
         };
         const { links } = ctx;
         const referenceId = generateUuid();
-        const requestData = prepareRequest('credit', options, ctx, referenceId) as API.CreditPaymentData;
+        const requestData = prepareRequest('credit', { ...options, accountNumber, }, ctx, referenceId) as API.CreditPaymentData;
 
         const hashCode = hashSecretKey(requestData, ctx.secretKey);
         const creditUrl = `${links.baseUrl + links.creditUrl + hashCode}`;
