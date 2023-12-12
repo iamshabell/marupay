@@ -1,4 +1,4 @@
-[![CI](https://github.com/iamshabell/marupay/actions/workflows/main.yml/badge.svg)](https://github.com/iamshabell/marupay/actions/workflows/main.yml)
+[![CI](https://github.com/iamshabell/marupay/actions/workflows/main.yml/badge.svg)](https://github.com/iamshabell/marupay/actions/workflows/main.yml) [![npm version](https://img.shields.io/npm/v/marupay.svg?color=0c0)](https://www.npmjs.com/package/marupay)
 
 # Marupay SDK
 
