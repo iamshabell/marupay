@@ -34,7 +34,7 @@ app.get('/purchase', async (req, res) => {
         const handler = getPaymentHandler(chosenHandler)(paymentConfig[chosenHandler]!);
 
         // Make a purchase request
-        const paymentInfo = await handler.request({
+        const paymentInfo = await handler.purchase({
             accountNumber: "+2526512312341", // must start with `+` followed by country code
             amount: 500,
             currency: Currency.SLSH,

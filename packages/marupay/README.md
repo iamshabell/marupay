@@ -58,7 +58,7 @@ app.get('/purchase', async (req, res) => {
         const handler = getPaymentHandler(chosenHandler)(paymentConfig[chosenHandler]!);
 
         // Make a purchase request
-        const paymentInfo = await handler.request({
+        const paymentInfo = await handler.purchase({
             accountNumber: "+2526512312341", // must start with `+` followed by country code
             amount: 500,
             currency: Currency.SLSH,
@@ -98,7 +98,7 @@ app.listen(port, () => {
 ```
 ### Responses
 
-The `credit` and `request` methods both returns a `PaymentInfo` object. It'll return these details:
+The `credit` and `purchase` methods both returns a `PaymentInfo` object. It'll return these details:
 
 - **`transactionId`:** This identifier is obtained from the vendor's transaction ID. It uniquely identifies the transaction in the vendor's system.
 
