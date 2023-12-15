@@ -38,5 +38,7 @@ The `credit` method returns a `PaymentInfo` object. It'll return these details:
 
 - **`referenceId`:** The reference ID is specific to Marupay and is provided in Marupay's response. It serves as a unique identifier for the transaction within Marupay's system.
 
+- **`raw`:** This will return unfiltered response details from the vendor.
+
 These details are essential for tracking and reconciling transactions between your application, the vendor, and Marupay. Ensure that you appropriately handle and store these values for accurate record-keeping and future reference.
 
