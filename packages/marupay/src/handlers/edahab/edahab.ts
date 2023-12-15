@@ -13,6 +13,50 @@ const edahabRequest = z.object({
     accountNumber: soRequestNumber,
 });
 
+const requestFn = async (url: string, data: any, referenceId: string) => {
+    const response = await axios.post(url, data);
+    const { TransactionId, InvoiceStatus, StatusCode, StatusDescription } = response.data;
+    const responseCode = `${StatusCode}`;
+    if (responseCode !== '0') {
+        console.log(`${StatusDescription}`);
+        throw responseCode;
+    }
+    return {
+        transactionId: TransactionId,
+        paymentStatus: InvoiceStatus,
+        referenceId,
+        raw: response.data,
+    };
+};
+
+const creditFn = async (url: string, data: any, referenceId: string) => {
+    const response = await axios.post(url, data).catch((e) => {
+        return {
+            data: {
+                PhoneNumber: data.phoneNumber,
+                TransactionId: referenceId,
+                TransactionStatus: 'error',
+                TransactionMesage: e.message,
+            } as API.CreditPaymentRes,
+        };
+    });
+
+    const { TransactionId, TransactionMesage, TransactionStatus } = response.data;
+    const responseCode = `${TransactionStatus}`;
+
+    if (responseCode === 'error') {
+        console.log(`credit error: ${TransactionMesage}`);
+        throw TransactionMesage;
+    }
+
+    return {
+        transactionId: TransactionId,
+        paymentStatus: TransactionStatus,
+        referenceId: generateUuid(),
+        raw: response.data,
+    };
+};
+
 export const createEdahabHandler = defineHandler({
     schema: {
         config: z.object({
@@ -38,21 +82,6 @@ export const createEdahabHandler = defineHandler({
     request: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
         const parsedData = safeParse(edahabRequest.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
         const accountNumber = parsedData.accountNumber.replace(SO_ACCOUNT_NUMBER, '');
-        const requestFn = async (url: string, data: API.RequestPaymentData, referenceId: string) => {
-            const response = await axios.post<API.RequestPaymentReq, { data: API.RequestPaymentRes }>(url, data);
-            const { TransactionId, InvoiceStatus, StatusCode, StatusDescription } = response.data;
-            const responseCode = `${StatusCode}`;
-            if (responseCode !== '0') {
-                console.log(`${StatusDescription}`);
-                throw responseCode;
-            }
-            return {
-                transactionId: TransactionId,
-                paymentStatus: InvoiceStatus,
-                referenceId,
-                raw: response.data,
-            };
-        };
         const { links } = ctx;
         const referenceId = generateUuid();
 
@@ -66,33 +95,6 @@ export const createEdahabHandler = defineHandler({
     credit: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
         const parsedData = safeParse(edahabRequest.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
         const accountNumber = parsedData.accountNumber.replace(SO_ACCOUNT_NUMBER, '');
-        const requestFn = async (url: string, data: API.CreditPaymentData, referenceId: string) => {
-            const response = await axios.post<API.CreditPaymentReq, { data: API.CreditPaymentRes }>(url, data).catch((e) => {
-                return {
-                    data: {
-                        PhoneNumber: data.phoneNumber,
-                        TransactionId: referenceId,
-                        TransactionStatus: 'error',
-                        TransactionMesage: e.message,
-                    } as API.CreditPaymentRes,
-                };
-            });
-
-            const { TransactionId, TransactionMesage, TransactionStatus } = response.data;
-            const responseCode = `${TransactionStatus}`;
-
-            if (responseCode === 'error') {
-                console.log(`credit error: ${TransactionMesage}`);
-                throw TransactionMesage;
-            }
-
-            return {
-                transactionId: TransactionId,
-                paymentStatus: TransactionStatus,
-                referenceId: generateUuid(),
-                raw: response.data,
-            };
-        };
         const { links } = ctx;
         const referenceId = generateUuid();
         const requestData = prepareRequest('credit', { ...options, accountNumber, }, ctx, referenceId) as API.CreditPaymentData;
@@ -100,7 +102,7 @@ export const createEdahabHandler = defineHandler({
         const hashCode = hashSecretKey(requestData, ctx.secretKey);
         const creditUrl = `${links.baseUrl + links.creditUrl + hashCode}`;
 
-        return await requestFn(creditUrl, requestData, referenceId);
+        return await creditFn(creditUrl, requestData, referenceId);
     },
 });
 

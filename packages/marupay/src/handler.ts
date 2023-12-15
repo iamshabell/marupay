@@ -49,7 +49,20 @@ export const defineHandler = <
     IRequest extends z.infer<HandlerRequestSchema> & BaseRequestOptions,
     ICredit extends z.infer<HandlerCreditSchema> & BaseRequestOptions,
     DefaultConfig extends Partial<IConfig>
->({ schema, defaultConfig, request, credit }: HandlerParams<HandlerConfigSchema, HandlerRequestSchema, HandlerCreditSchema, IConfig, IRequest, ICredit, DefaultConfig>) => {
+>({
+    schema,
+    defaultConfig,
+    request,
+    credit
+}: HandlerParams<
+    HandlerConfigSchema,
+    HandlerRequestSchema,
+    HandlerCreditSchema,
+    IConfig,
+    IRequest,
+    ICredit,
+    DefaultConfig
+>) => {
     return (config: Omit<IConfig, keyof DefaultConfig> & Partial<DefaultConfig>) => {
         console.log(`config: ${JSON.stringify(config)}`);
         const ctx = safeParse(schema.config, { ...defaultConfig, ...config }) as IConfig;
