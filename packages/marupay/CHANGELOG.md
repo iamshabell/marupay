@@ -1,5 +1,11 @@
 # marupay
 
+## 0.2.0
+
+### Minor Changes
+
+- 4b46401: Add `raw` field to return unfiltered response detail from the vendor's side
+
 ## 0.1.0
 
 ### Minor Changes
