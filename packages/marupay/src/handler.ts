@@ -6,6 +6,7 @@ interface IPaymentInfo {
     transactionId: string
     paymentStatus: string;
     referenceId: string;
+    raw: any;
 }
 
 export const baseConfigSchema = z.object({});
