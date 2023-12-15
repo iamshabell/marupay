@@ -1,5 +1,11 @@
 # marupay
 
+## 0.2.1
+
+### Patch Changes
+
+- 6fe65b7: rename `request` to `purchase` for better understanding
+
 ## 0.2.0
 
 ### Minor Changes
