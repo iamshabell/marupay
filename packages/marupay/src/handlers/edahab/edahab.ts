@@ -6,11 +6,11 @@ import * as API from './api';
 import { hashSecretKey } from './hash';
 import { PaymentCtx, PaymentOptions } from '../types';
 import { prepareRequest } from './prepareRequest';
-import { SO_ACCOUNT_NUMBER, soRequestNumber } from '../constants'
+import { SO_ACCOUNT_NUMBER, soPurchaseNumber } from '../constants'
 import { safeParse } from '../../utils/safeParser';
 
-const edahabRequest = z.object({
-    accountNumber: soRequestNumber,
+const edahabPurchase = z.object({
+    accountNumber: soPurchaseNumber,
 });
 
 const requestFn = async (url: string, data: any, referenceId: string) => {
@@ -69,8 +69,8 @@ export const createEdahabHandler = defineHandler({
                 creditUrl: z.string(),
             }),
         }),
-        request: edahabRequest,
-        credit: edahabRequest,
+        purchase:  edahabPurchase,
+        credit: edahabPurchase,
     },
     defaultConfig: {
         links: {
@@ -79,13 +79,13 @@ export const createEdahabHandler = defineHandler({
             creditUrl: '/api/agentPayment?hash=',
         },
     },
-    request: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
-        const parsedData = safeParse(edahabRequest.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
+    purchase:  async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
+        const parsedData = safeParse(edahabPurchase.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
         const accountNumber = parsedData.accountNumber.replace(SO_ACCOUNT_NUMBER, '');
         const { links } = ctx;
         const referenceId = generateUuid();
 
-        const requestData = prepareRequest('request', { ...options, accountNumber }, ctx, referenceId) as API.RequestPaymentData;
+        const requestData = prepareRequest('request', { ...options, accountNumber }, ctx, referenceId) as API.PurchasePaymentData;
         const hashCode = hashSecretKey(requestData, ctx.secretKey);
 
         const requestUrl = `${links.baseUrl + links.requestUrl + hashCode}`;
@@ -93,7 +93,7 @@ export const createEdahabHandler = defineHandler({
         return await requestFn(requestUrl, requestData, referenceId);
     },
     credit: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
-        const parsedData = safeParse(edahabRequest.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
+        const parsedData = safeParse(edahabPurchase.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
         const accountNumber = parsedData.accountNumber.replace(SO_ACCOUNT_NUMBER, '');
         const { links } = ctx;
         const referenceId = generateUuid();

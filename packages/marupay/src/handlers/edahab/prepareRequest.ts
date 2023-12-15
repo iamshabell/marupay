@@ -1,8 +1,8 @@
 import { PaymentCtx, PaymentOptions } from '../types';
 import * as API from './api';
 
-export const prepareRequest = (paymentType: "request" | "credit", data: PaymentOptions, ctx: PaymentCtx, referenceId: string): API.RequestData | API.RequestPaymentData | API.CreditPaymentData => {
-    var requestData: API.RequestData;
+export const prepareRequest = (paymentType: "request" | "credit", data: PaymentOptions, ctx: PaymentCtx, referenceId: string): API.PurchaseData | API.PurchasePaymentData | API.CreditPaymentData => {
+    var requestData: API.PurchaseData;
 
     if (paymentType === 'request') {
         requestData = {
@@ -12,7 +12,7 @@ export const prepareRequest = (paymentType: "request" | "credit", data: PaymentO
             currency: data.currency,
             agentCode: ctx.merchantId,
             description: data.description,
-        } as API.RequestPaymentData;
+        } as API.PurchasePaymentData;
     } else if (paymentType === 'credit') {
         requestData = {
             apiKey: ctx.apiKey,

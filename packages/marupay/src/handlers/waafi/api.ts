@@ -1,4 +1,4 @@
-export type RequestPaymentReq = {
+export type PurchasePaymentReq = {
     accountNo: string;
     amount: number;
     currency: string;
@@ -14,7 +14,7 @@ export type CreditPaymentReq = {
     accountHolder?: string;
 }
 
-export type RequestPaymentRes = {
+export type PurchasePaymentRes = {
     schemaVersion: string;
     timestamp: string;
     requestId: string;
@@ -40,32 +40,32 @@ export type ResponseParams = {
     txAmount: string;
 };
 
-export type RequestData = {
+export type PurchaseData = {
     schemaVersion: '1.0';
     requestId: '7102205824';
     timestamp: '2022-02-04 Africa';
     channelName: 'WEB';
     serviceName: string;
-    serviceParams: RequestServiceParams;
+    serviceParams: PurchaseServiceParams;
 }
 
-export type RequestServiceParams = {
+export type PurchaseServiceParams = {
     merchantUid: string;
     apiUserId: string;
     apiKey: string;
     paymentMethod: string;
     browserInfo: string;
-    payerInfo: RequestPayerInfo;
-    transactionInfo: RequestTransactionInfo;
+    payerInfo: PurchasePayerInfo;
+    transactionInfo: PurchaseTransactionInfo;
 }
 
-export type RequestPayerInfo = {
+export type PurchasePayerInfo = {
     accountNo: string;
     accountType?: string;
     accountHolder?: string;
 }
 
-export type RequestTransactionInfo = {
+export type PurchaseTransactionInfo = {
     referenceId: string;
     invoiceId: string;
     amount: number;
