@@ -50,6 +50,7 @@ export const createEdahabHandler = defineHandler({
                 transactionId: TransactionId,
                 paymentStatus: InvoiceStatus,
                 referenceId,
+                raw: response.data,
             };
         };
         const { links } = ctx;
@@ -89,6 +90,7 @@ export const createEdahabHandler = defineHandler({
                 transactionId: TransactionId,
                 paymentStatus: TransactionStatus,
                 referenceId: generateUuid(),
+                raw: response.data,
             };
         };
         const { links } = ctx;

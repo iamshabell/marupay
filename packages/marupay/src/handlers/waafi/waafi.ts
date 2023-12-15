@@ -48,6 +48,7 @@ export const createWaafiHandler = defineHandler({
                 transactionId: params.transactionId,
                 paymentStatus: params.state,
                 referenceId: params.referenceId,
+                raw: response.data,
             };
         };
 
@@ -74,6 +75,7 @@ export const createWaafiHandler = defineHandler({
                 transactionId: params.transactionId,
                 paymentStatus: params.state,
                 referenceId: referenceId.toString(),
+                raw: response.data,
             };
         };
 
