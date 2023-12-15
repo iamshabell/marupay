@@ -6,10 +6,10 @@ import * as API from './api';
 import { PaymentCtx, PaymentOptions } from '../types';
 import { prepareRequest } from './prepareRequest';
 import { safeParse } from '../../utils/safeParser';
-import { soRequestNumber } from 'handlers/constants';
+import { soPurchaseNumber } from 'handlers/constants';
 
-const waafiRequest = z.object({
-    accountNumber: soRequestNumber,
+const waafiPurchase = z.object({
+    accountNumber: soPurchaseNumber,
 });
 
 export const createWaafiHandler = defineHandler({
@@ -22,10 +22,10 @@ export const createWaafiHandler = defineHandler({
                 baseUrl: z.string(),
             }),
         }),
-        request: waafiRequest,
+        purchase: waafiPurchase,
         credit: z.object({
             accountType: z.enum(['MERCHANT', 'CUSTOMER']).optional(),
-            ...waafiRequest.shape,
+            ...waafiPurchase.shape,
         }).optional(),
     },
     defaultConfig: {
@@ -33,60 +33,39 @@ export const createWaafiHandler = defineHandler({
             baseUrl: 'https://api.waafipay.net/asm',
         },
     },
-    request: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
-        const parsedData = safeParse(waafiRequest.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
+    purchase:  async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
+        const parsedData = safeParse(waafiPurchase.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
         const accountNumber = parsedData.accountNumber.replace("+", '');
-        const requestFn = async (url: string, data: API.RequestData) => {
-            const response = await axios.post<API.RequestPaymentReq, { data: API.RequestPaymentRes }>(url, data);
-            const { responseCode, responseMsg, errorCode, params } = response.data;
+        const requestUrl = `${ctx.links.baseUrl}`;
+        const PurchaseData = prepareRequest('request', { ...options, accountNumber }, ctx, generateUuid());
 
-            if (responseCode !== '2001' || params == null) {
-                console.log(`WAAFI: API-RES: ${responseMsg} ERROR-CODE: ${errorCode}`);
-                throw responseCode;
-            }
-            return {
-                transactionId: params.transactionId,
-                paymentStatus: params.state,
-                referenceId: params.referenceId,
-                raw: response.data,
-            };
-        };
-
-        const referenceId = generateUuid();
-        const { links } = ctx;
-
-        const requestUrl = `${links.baseUrl}`;
-        const requestData = prepareRequest('request', { ...options, accountNumber }, ctx, referenceId);
-
-        return await requestFn(requestUrl, requestData);
+        return await sendRequest(requestUrl, PurchaseData);
     },
     credit: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
-        const parsedData = safeParse(waafiRequest.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
+        const parsedData = safeParse(waafiPurchase.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
         const accountNumber = parsedData.accountNumber.replace("+", '');
-        const requestFn = async (url: string, data: API.RequestData) => {
-            const response = await axios.post<API.CreditPaymentReq, { data: API.RequestPaymentRes }>(url, data);
-            const { responseCode, responseMsg, errorCode, params } = response.data;
+        const requestUrl = `${ctx.links.baseUrl}`;
+        const PurchaseData = prepareRequest('credit', { ...options, accountNumber }, ctx, generateUuid());
 
-            if (responseCode !== '2001' || params == null) {
-                console.log(`WAAFI: API-RES: ${responseMsg} ERROR-CODE: ${errorCode}`);
-                throw responseCode;
-            }
-            return {
-                transactionId: params.transactionId,
-                paymentStatus: params.state,
-                referenceId: referenceId.toString(),
-                raw: response.data,
-            };
-        };
-
-        const referenceId = generateUuid();
-        const { links } = ctx;
-
-        const requestUrl = `${links.baseUrl}`;
-        const requestData = prepareRequest('credit', { ...options, accountNumber }, ctx, referenceId);
-
-        return await requestFn(requestUrl, requestData);
+        return await sendRequest(requestUrl, PurchaseData);
     },
 });
 
 export type WaafiHandler = ReturnType<typeof createWaafiHandler>
+
+async function sendRequest(url: string, data: API.PurchaseData) {
+    const response = await axios.post<API.PurchasePaymentReq, { data: API.PurchasePaymentRes }>(url, data);
+    const { responseCode, responseMsg, errorCode, params } = response.data;
+
+    if (responseCode !== '2001' || params == null) {
+        console.log(`WAAFI: API-RES: ${responseMsg} ERROR-CODE: ${errorCode}`);
+        throw responseCode;
+    }
+
+    return {
+        transactionId: params.transactionId,
+        paymentStatus: params.state,
+        referenceId: params.referenceId.toString(),
+        raw: response.data,
+    };
+}

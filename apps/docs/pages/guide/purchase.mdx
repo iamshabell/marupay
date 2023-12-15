@@ -1,15 +1,15 @@
-# Making Our First Request
-*Request is sending a C2B or charging a customer.*
+# Making Our First Purchase
+*Purchase is sending a C2B or charging a customer.*
 
-Now, let's add a route for making a credit request:
+Now, let's add a route for making a purchase request:
 
 ```typescript
-app.get('/credit', async (req, res) => {
+app.get('/purchase', async (req, res) => {
     try {
         const chosenHandler: HandlerName = 'edahab';
         const handler = getPaymentHandler(chosenHandler)(paymentConfig[chosenHandler]!);
 
-        const paymentInfo = await handler.request({
+        const paymentInfo = await handler.purchase({
             accountNumber: "+2526512312341", // must start with `+` followed by country code
             amount: 500,
             currency: Currency.SLSH,

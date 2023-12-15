@@ -7,12 +7,12 @@ Once you have configured the payment handlers, you can utilize this configuratio
 Here's a quick example of how you can use the configuration when making a credit request:
 
 ```typescript
-app.get('/purchase', async (req, res) => {
+app.get('/credit', async (req, res) => {
     try {
         const chosenHandler: HandlerName = 'edahab';
         const handler = getPaymentHandler(chosenHandler)(paymentConfig[chosenHandler]!);
 
-        const paymentInfo = await handler.request({
+        const paymentInfo = await handler.credit({
             accountNumber: "+2526512312341", // must start with `+` followed by country code
             amount: 500,
             currency: Currency.SLSH,

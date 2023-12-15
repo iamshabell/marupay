@@ -2,8 +2,8 @@ import { PaymentCtx, PaymentOptions } from '../types';
 import * as API from './api';
 import { generateUuid } from '../../utils/generateUuid';
 
-export const prepareRequest = (paymentType: "request" | "credit", data: PaymentOptions, ctx: PaymentCtx, referenceId: string): API.RequestData => {
-    const serviceParams: API.RequestServiceParams = {
+export const prepareRequest = (paymentType: "request" | "credit", data: PaymentOptions, ctx: PaymentCtx, referenceId: string): API.PurchaseData => {
+    const serviceParams: API.PurchaseServiceParams = {
         merchantUid: ctx.merchantId,
         apiUserId: ctx.secretKey,
         apiKey: ctx.apiKey,
@@ -22,7 +22,7 @@ export const prepareRequest = (paymentType: "request" | "credit", data: PaymentO
         paymentMethod: 'MWALLET_ACCOUNT',
     };
 
-    const requestData: API.RequestData = {
+    const requestData: API.PurchaseData = {
         serviceName: paymentType == 'request' ? 'API_PURCHASE' : 'API_CREDITACCOUNT',
         serviceParams,
         schemaVersion: '1.0',

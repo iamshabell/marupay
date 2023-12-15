@@ -1,4 +1,4 @@
-export interface RequestPaymentReq {
+export interface PurchasePaymentReq {
     apiKey: string;
     edahabNumber: string;
     amount: number;
@@ -7,7 +7,7 @@ export interface RequestPaymentReq {
     ReturnUrl?: string;
 }
 
-export interface RequestPaymentRes {
+export interface PurchasePaymentRes {
     InvoiceStatus: string;
     TransactionId: string;
     InvoiceId: number;
@@ -33,7 +33,7 @@ export interface CreditPaymentRes {
 }
 
 
-export type RequestData = {
+export type PurchaseData = {
     apiKey: string,
     currency: string,
     description?: string,
@@ -41,5 +41,5 @@ export type RequestData = {
     agentCode?: string,
 }
 
-export type RequestPaymentData = RequestData & { edahabNumber: string }
-export type CreditPaymentData = RequestData & { phoneNumber: string, transactionAmount: number, transactionId: string }
+export type PurchasePaymentData = PurchaseData & { edahabNumber: string }
+export type CreditPaymentData = PurchaseData & { phoneNumber: string, transactionAmount: number, transactionId: string }
