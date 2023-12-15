@@ -96,6 +96,18 @@ app.listen(port, () => {
     console.log(`Server is listening at http://localhost:${port}`);
 });
 ```
+### Responses
+
+The `credit` and `request` methods both returns a `PaymentInfo` object. It'll return these details:
+
+- **`transactionId`:** This identifier is obtained from the vendor's transaction ID. It uniquely identifies the transaction in the vendor's system.
+
+- **`paymentStatus`:** The payment status is also retrieved from the vendor's response. It indicates the current status of the payment transaction in the vendor's system.
+
+- **`referenceId`:** The reference ID is specific to Marupay and is provided in Marupay's response. It serves as a unique identifier for the transaction within Marupay's system.
+
+- **`raw`:** This will return unfiltered response details from the vendor.
+
 
 ### Examples
 
