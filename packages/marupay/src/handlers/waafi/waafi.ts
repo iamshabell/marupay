@@ -7,6 +7,7 @@ import { PaymentCtx, PaymentOptions } from '../types';
 import { prepareRequest } from './prepareRequest';
 import { safeParse } from '../../utils/safeParser';
 import { soPurchaseNumber } from 'handlers/constants';
+import { VendorErrorException } from 'handlers/exeptions';
 
 const waafiPurchase = z.object({
     accountNumber: soPurchaseNumber,
@@ -59,7 +60,7 @@ async function sendRequest(url: string, data: API.PurchaseData) {
 
     if (responseCode !== '2001' || params == null) {
         console.log(`WAAFI: API-RES: ${responseMsg} ERROR-CODE: ${errorCode}`);
-        throw responseCode;
+        throw new VendorErrorException(errorCode, responseMsg);
     }
 
     return {

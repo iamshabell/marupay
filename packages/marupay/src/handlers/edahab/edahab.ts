@@ -8,18 +8,19 @@ import { PaymentCtx, PaymentOptions } from '../types';
 import { prepareRequest } from './prepareRequest';
 import { SO_ACCOUNT_NUMBER, soPurchaseNumber } from '../constants'
 import { safeParse } from '../../utils/safeParser';
+import { VendorErrorException } from 'handlers/exeptions';
 
 const edahabPurchase = z.object({
     accountNumber: soPurchaseNumber,
 });
 
-const requestFn = async (url: string, data: any, referenceId: string) => {
-    const response = await axios.post(url, data);
+const requestFn = async (url: string, data: API.PurchasePaymentData, referenceId: string) => {
+    const response = await axios.post<API.PurchasePaymentReq, { data: API.PurchasePaymentRes }>(url, data);
     const { TransactionId, InvoiceStatus, StatusCode, StatusDescription } = response.data;
     const responseCode = `${StatusCode}`;
     if (responseCode !== '0') {
         console.log(`${StatusDescription}`);
-        throw responseCode;
+        throw new VendorErrorException(responseCode, StatusDescription);
     }
     return {
         transactionId: TransactionId,
@@ -29,30 +30,21 @@ const requestFn = async (url: string, data: any, referenceId: string) => {
     };
 };
 
-const creditFn = async (url: string, data: any, referenceId: string) => {
-    const response = await axios.post(url, data).catch((e) => {
-        return {
-            data: {
-                PhoneNumber: data.phoneNumber,
-                TransactionId: referenceId,
-                TransactionStatus: 'error',
-                TransactionMesage: e.message,
-            } as API.CreditPaymentRes,
-        };
-    });
+const creditFn = async (url: string, data: API.CreditPaymentData, referenceId: string) => {
+    const response = await axios.post<API.CreditPaymentReq, { data: API.CreditPaymentRes }>(url, data);
 
     const { TransactionId, TransactionMesage, TransactionStatus } = response.data;
     const responseCode = `${TransactionStatus}`;
 
-    if (responseCode === 'error') {
+    if (responseCode !== 'Approved') {
         console.log(`credit error: ${TransactionMesage}`);
-        throw TransactionMesage;
+        throw new VendorErrorException(responseCode, 'EDAHAB-CREDIT-ERROR');
     }
 
     return {
         transactionId: TransactionId,
         paymentStatus: TransactionStatus,
-        referenceId: generateUuid(),
+        referenceId,
         raw: response.data,
     };
 };
@@ -69,7 +61,7 @@ export const createEdahabHandler = defineHandler({
                 creditUrl: z.string(),
             }),
         }),
-        purchase:  edahabPurchase,
+        purchase: edahabPurchase,
         credit: edahabPurchase,
     },
     defaultConfig: {
@@ -79,7 +71,7 @@ export const createEdahabHandler = defineHandler({
             creditUrl: '/api/agentPayment?hash=',
         },
     },
-    purchase:  async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
+    purchase: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
         const parsedData = safeParse(edahabPurchase.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
         const accountNumber = parsedData.accountNumber.replace(SO_ACCOUNT_NUMBER, '');
         const { links } = ctx;
