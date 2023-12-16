@@ -61,7 +61,10 @@ export const createEdahabHandler = defineHandler({
                 creditUrl: z.string(),
             }),
         }),
-        purchase: edahabPurchase,
+        purchase: z.object({
+            returnUrl: z.string().optional(),
+            ...edahabPurchase.shape,
+        }),
         credit: edahabPurchase,
     },
     defaultConfig: {
@@ -71,7 +74,7 @@ export const createEdahabHandler = defineHandler({
             creditUrl: '/api/agentPayment?hash=',
         },
     },
-    purchase: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
+    purchase: async ({ ctx, options }) => {
         const parsedData = safeParse(edahabPurchase.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
         const accountNumber = parsedData.accountNumber.replace(SO_ACCOUNT_NUMBER, '');
         const { links } = ctx;
@@ -84,7 +87,7 @@ export const createEdahabHandler = defineHandler({
 
         return await requestFn(requestUrl, requestData, referenceId);
     },
-    credit: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
+    credit: async ({ ctx, options }) => {
         const parsedData = safeParse(edahabPurchase.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
         const accountNumber = parsedData.accountNumber.replace(SO_ACCOUNT_NUMBER, '');
         const { links } = ctx;
