@@ -13,6 +13,23 @@ const waafiPurchase = z.object({
     accountNumber: soPurchaseNumber,
 });
 
+async function sendRequest(url: string, data: API.PurchaseData) {
+    const response = await axios.post<API.PurchasePaymentReq, { data: API.PurchasePaymentRes }>(url, data);
+    const { responseCode, responseMsg, errorCode, params } = response.data;
+
+    if (responseCode !== '2001' || params == null) {
+        console.log(`WAAFI: API-RES: ${responseMsg} ERROR-CODE: ${errorCode}`);
+        throw new VendorErrorException(errorCode, responseMsg);
+    }
+
+    return {
+        transactionId: params.transactionId,
+        paymentStatus: params.state,
+        referenceId: params.referenceId.toString(),
+        raw: response.data,
+    };
+}
+
 export const createWaafiHandler = defineHandler({
     schema: {
         config: z.object({
@@ -34,7 +51,7 @@ export const createWaafiHandler = defineHandler({
             baseUrl: 'https://api.waafipay.net/asm',
         },
     },
-    purchase:  async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
+    purchase:  async ({ ctx, options }) => {
         const parsedData = safeParse(waafiPurchase.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
         const accountNumber = parsedData.accountNumber.replace("+", '');
         const requestUrl = `${ctx.links.baseUrl}`;
@@ -42,7 +59,7 @@ export const createWaafiHandler = defineHandler({
 
         return await sendRequest(requestUrl, PurchaseData);
     },
-    credit: async ({ ctx, options }: { ctx: PaymentCtx, options: PaymentOptions }) => {
+    credit: async ({ ctx, options }) => {
         const parsedData = safeParse(waafiPurchase.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
         const accountNumber = parsedData.accountNumber.replace("+", '');
         const requestUrl = `${ctx.links.baseUrl}`;
@@ -53,20 +70,3 @@ export const createWaafiHandler = defineHandler({
 });
 
 export type WaafiHandler = ReturnType<typeof createWaafiHandler>
-
-async function sendRequest(url: string, data: API.PurchaseData) {
-    const response = await axios.post<API.PurchasePaymentReq, { data: API.PurchasePaymentRes }>(url, data);
-    const { responseCode, responseMsg, errorCode, params } = response.data;
-
-    if (responseCode !== '2001' || params == null) {
-        console.log(`WAAFI: API-RES: ${responseMsg} ERROR-CODE: ${errorCode}`);
-        throw new VendorErrorException(errorCode, responseMsg);
-    }
-
-    return {
-        transactionId: params.transactionId,
-        paymentStatus: params.state,
-        referenceId: params.referenceId.toString(),
-        raw: response.data,
-    };
-}
