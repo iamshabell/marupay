@@ -63,6 +63,8 @@ app.get('/purchase', async (req, res) => {
             amount: 500,
             currency: Currency.SLSH,
             description: "Test purchase",
+            // for web handlers, you can optionally provide a return URL
+            returnUrl: "https://example.com/return", 
         });
 
         res.send(paymentInfo);
