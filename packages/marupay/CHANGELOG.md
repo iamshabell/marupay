@@ -1,5 +1,13 @@
 # marupay
 
+## 0.2.2
+
+### Patch Changes
+
+- 49f3ed7: - Web support for edahab api
+  - Vendor exception hadling error
+  - refactor waafi handler
+
 ## 0.2.1
 
 ### Patch Changes
