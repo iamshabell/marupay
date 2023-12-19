@@ -1,5 +1,5 @@
 import * as API from './api'
-import CryptoJS from 'crypto-js';
+import * as CryptoJS from 'crypto-js';
 
 /**
  * Hashes the given data and secret key using SHA256 algorithm.
