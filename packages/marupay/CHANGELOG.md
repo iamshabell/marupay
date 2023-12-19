@@ -1,5 +1,11 @@
 # marupay
 
+## 0.2.3
+
+### Patch Changes
+
+- 8b6acff: Add jsdoc
+
 ## 0.2.2
 
 ### Patch Changes
