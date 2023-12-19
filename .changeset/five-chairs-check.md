@@ -1,0 +1,5 @@
+---
+"marupay": patch
+---
+
+Add jsdoc

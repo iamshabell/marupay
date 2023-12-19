@@ -2,6 +2,15 @@ import { PaymentCtx, PaymentOptions } from '../types';
 import * as API from './api';
 import { generateUuid } from '../../utils/generateUuid';
 
+/**
+ * Prepares the request data for making a purchase or credit transaction.
+ * 
+ * @param paymentType - The type of payment: "request" or "credit".
+ * @param data - The payment options.
+ * @param ctx - The payment context.
+ * @param referenceId - The reference ID for the transaction.
+ * @returns The prepared request data.
+ */
 export const prepareRequest = (paymentType: "request" | "credit", data: PaymentOptions, ctx: PaymentCtx, referenceId: string): API.PurchaseData => {
     const serviceParams: API.PurchaseServiceParams = {
         merchantUid: ctx.merchantId,

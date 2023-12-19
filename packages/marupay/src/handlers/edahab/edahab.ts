@@ -14,6 +14,15 @@ const edahabPurchase = z.object({
     accountNumber: soPurchaseNumber,
 });
 
+/**
+ * Makes a purchase payment request.
+ * 
+ * @param url - The URL to send the request to.
+ * @param data - The payment data.
+ * @param referenceId - The reference ID for the payment.
+ * @returns An object containing the transaction ID, payment status, reference ID, and raw response data.
+ * @throws VendorErrorException if the response code is not '0'.
+ */
 const purchaseFn = async (url: string, data: API.PurchasePaymentData, referenceId: string) => {
     const response = await axios.post<API.PurchasePaymentReq, { data: API.PurchasePaymentRes }>(url, data);
     const { TransactionId, InvoiceStatus, StatusCode, StatusDescription } = response.data;
@@ -30,6 +39,14 @@ const purchaseFn = async (url: string, data: API.PurchasePaymentData, referenceI
     };
 };
 
+/**
+ * Makes a credit payment request to the specified URL using the provided data.
+ * @param url - The URL to send the credit payment request to.
+ * @param data - The data for the credit payment request.
+ * @param referenceId - The reference ID for the credit payment.
+ * @returns An object containing the transaction ID, payment status, reference ID, and raw response data.
+ * @throws {VendorErrorException} If the credit payment response code is not 'Approved'.
+ */
 const creditFn = async (url: string, data: API.CreditPaymentData, referenceId: string) => {
     const response = await axios.post<API.CreditPaymentReq, { data: API.CreditPaymentRes }>(url, data);
 

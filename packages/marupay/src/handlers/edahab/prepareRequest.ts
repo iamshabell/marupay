@@ -1,6 +1,16 @@
 import { PaymentCtx, PaymentOptions } from '../types';
 import * as API from './api';
 
+/**
+ * Prepares the request data for making a purchase or credit payment.
+ * 
+ * @param paymentType - The type of payment: "request" or "credit".
+ * @param data - The payment options.
+ * @param ctx - The payment context.
+ * @param referenceId - The reference ID for the transaction.
+ * @returns The prepared request data.
+ * @throws Error if the paymentType is unexpected.
+ */
 export const prepareRequest = (paymentType: "request" | "credit", data: PaymentOptions, ctx: PaymentCtx, referenceId: string): API.PurchaseData | API.PurchasePaymentData | API.CreditPaymentData => {
     var requestData: API.PurchaseData;
 
