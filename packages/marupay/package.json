@@ -15,7 +15,7 @@
         "dev": "yarn build -- --watch",
         "lint": "eslint \"{src,test}/**/*.ts\" --fix",
         "test": "jest --runInBand",
-        "test:cov": "jest --coverage --runInBand"
+        "test:coverage": "jest --coverage --runInBand"
     },
     "author": {
         "name": "Mubarak Shabel",
