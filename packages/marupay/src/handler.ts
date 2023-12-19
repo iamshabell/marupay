@@ -21,6 +21,16 @@ export const basePurchaseSchema = z.object({
 
 export type BasePurchaseOptions = z.infer<typeof basePurchaseSchema>;
 
+/**
+ * Represents the parameters for a handler function.
+ * @template HandlerConfigSchema - The schema for the handler's config.
+ * @template HandlerPurchaseSchema - The schema for the handler's purchase options.
+ * @template HandlerCreditSchema - The schema for the handler's credit options.
+ * @template IConfig - The inferred type of the handler's config options.
+ * @template IPurchase - The inferred type of the handler's purchase options.
+ * @template ICredit - The inferred type of the handler's credit options.
+ * @template DefaultConfig - The partial type of the default config options.
+ */
 type HandlerParams<
     HandlerConfigSchema extends ZodSchema,
     HandlerPurchaseSchema extends ZodSchema,
@@ -41,6 +51,21 @@ type HandlerParams<
 };
 
 
+/**
+ * Defines a handler function that takes in configuration, purchase, and credit functions,
+ * and returns an object with purchase and credit methods.
+ * 
+ * @template HandlerConfigSchema - The schema for the handler configuration.
+ * @template HandlerPurchaseSchema - The schema for the purchase options.
+ * @template HandlerCreditSchema - The schema for the credit options.
+ * @template IConfig - The inferred type of the handler configuration.
+ * @template IPurchase - The inferred type of the purchase options.
+ * @template ICredit - The inferred type of the credit options.
+ * @template DefaultConfig - The partial type of the default configuration.
+ * 
+ * @param {HandlerParams<HandlerConfigSchema, HandlerPurchaseSchema, HandlerCreditSchema, IConfig, IPurchase, ICredit, DefaultConfig>} params - The parameters for the handler function.
+ * @returns {Function} - The handler function that takes in configuration and returns an object with purchase and credit methods.
+ */
 export const defineHandler = <
     HandlerConfigSchema extends ZodSchema,
     HandlerPurchaseSchema extends ZodSchema,

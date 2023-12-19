@@ -1,3 +1,6 @@
+/**
+ * Represents a configuration object for different payment providers.
+ */
 export type ConfigObject = {
     edahab?: {
         apiKey: string

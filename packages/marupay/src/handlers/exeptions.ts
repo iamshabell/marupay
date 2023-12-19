@@ -5,6 +5,9 @@ class MaruPayException extends Error {
   }
 }
 
+/**
+ * Represents an exception that occurs when there is an error with the vendor.
+ */
 class VendorErrorException extends MaruPayException {
     constructor(public code: string, public message: string) {
         super(code, message || 'Vendor error');
