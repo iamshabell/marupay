@@ -14,7 +14,7 @@ const edahabPurchase = z.object({
     accountNumber: soPurchaseNumber,
 });
 
-const requestFn = async (url: string, data: API.PurchasePaymentData, referenceId: string) => {
+const purchaseFn = async (url: string, data: API.PurchasePaymentData, referenceId: string) => {
     const response = await axios.post<API.PurchasePaymentReq, { data: API.PurchasePaymentRes }>(url, data);
     const { TransactionId, InvoiceStatus, StatusCode, StatusDescription } = response.data;
     const responseCode = `${StatusCode}`;
@@ -85,7 +85,7 @@ export const createEdahabHandler = defineHandler({
 
         const requestUrl = `${links.baseUrl + links.requestUrl + hashCode}`;
 
-        return await requestFn(requestUrl, requestData, referenceId);
+        return await purchaseFn(requestUrl, requestData, referenceId);
     },
     credit: async ({ ctx, options }) => {
         const parsedData = safeParse(edahabPurchase.pick({ accountNumber: true }), { accountNumber: options.accountNumber });
