@@ -1,5 +1,12 @@
 # marupay
 
+## 0.2.4
+
+### Patch Changes
+
+- 0f88c2f: Jest Configuration
+  Unit tests for both eDahab and Waafi
+
 ## 0.2.3
 
 ### Patch Changes
