@@ -25,11 +25,11 @@ const edahabPurchase = z.object({
  */
 const purchaseFn = async (url: string, data: API.PurchasePaymentData, referenceId: string) => {
     const response = await axios.post<API.PurchasePaymentReq, { data: API.PurchasePaymentRes }>(url, data);
-    const { TransactionId, InvoiceStatus, StatusCode, StatusDescription } = response.data;
-    const responseCode = `${StatusCode}`;
-    if (responseCode !== '0') {
-        console.log(`${StatusDescription}`);
-        throw new VendorErrorException(responseCode, StatusDescription);
+    const { TransactionId, InvoiceStatus } = response.data;
+    const responseCode = `${InvoiceStatus}`;
+    if (responseCode !== 'Paid') {
+        console.log(`${InvoiceStatus}`);
+        throw new VendorErrorException(responseCode, InvoiceStatus);
     }
     return {
         transactionId: TransactionId,
