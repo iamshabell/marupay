@@ -8,7 +8,7 @@ import { PaymentCtx, PaymentOptions } from '../types';
 import { prepareRequest } from './prepareRequest';
 import { SO_ACCOUNT_NUMBER, soPurchaseNumber } from '../constants'
 import { safeParse } from '../../utils/safeParser';
-import { VendorErrorException } from 'handlers/exeptions';
+import { VendorErrorException } from '../../handlers/exeptions';
 
 const edahabPurchase = z.object({
     accountNumber: soPurchaseNumber,

@@ -3,11 +3,10 @@ import { z } from 'zod';
 import { generateUuid } from '../../utils/generateUuid';
 import { defineHandler } from '../../handler';
 import * as API from './api';
-import { PaymentCtx, PaymentOptions } from '../types';
 import { prepareRequest } from './prepareRequest';
 import { safeParse } from '../../utils/safeParser';
-import { soPurchaseNumber } from 'handlers/constants';
-import { VendorErrorException } from 'handlers/exeptions';
+import { soPurchaseNumber } from '../../handlers/constants';
+import { VendorErrorException } from '../../handlers/exeptions';
 
 const waafiPurchase = z.object({
     accountNumber: soPurchaseNumber,
