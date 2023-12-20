@@ -1,10 +1,9 @@
 import axios from 'axios';
-import { ZodString, z } from 'zod';
+import { z } from 'zod';
 import { generateUuid } from '../../utils/generateUuid';
 import { defineHandler } from '../../handler';
 import * as API from './api';
 import { hashSecretKey } from './hash';
-import { PaymentCtx, PaymentOptions } from '../types';
 import { prepareRequest } from './prepareRequest';
 import { SO_ACCOUNT_NUMBER, soPurchaseNumber } from '../constants'
 import { safeParse } from '../../utils/safeParser';
@@ -62,7 +61,7 @@ const creditFn = async (url: string, data: API.CreditPaymentData, referenceId: s
 
     const { TransactionId, TransactionMesage, TransactionStatus } = response.data;
 
-    if (TransactionMesage === 'You do not have sufficient balance') {
+    if (TransactionMesage === 'You do not have sufficient balance.') {
         throw new VendorInsufficientBalance(TransactionMesage);
      }
  

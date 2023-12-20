@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { EdahabHandler, createEdahabHandler } from './edahab'; // Import your EdahabHandler
 import { Currency } from '../../handlers/enums';
-import { VendorErrorException } from '../../handlers/exeptions';
+import { VendorAccountNotFound, VendorErrorException, VendorInsufficientBalance } from '../../handlers/exeptions';
 
 jest.mock('axios');
 
@@ -74,6 +74,53 @@ describe('Edahab Handler', () => {
         mockedAxios.post.mockResolvedValueOnce({ data: serverResponse });
 
         await expect(handler.credit(options)).rejects.toThrow(new VendorErrorException('Failed', 'EDAHAB-CREDIT-ERROR'));
+    });
+
+    it('throws vendor errors for purchase when account not found', async () => {
+        const serverResponse = {
+            StatusCode: 3,
+            RequestId: 2142,
+            StatusDescription: "Validation Error",
+            ValidationErrors: [
+                {
+                    Property: "EDahabNumber",
+                    ErrorMessage: "Must be 9 digits and start with 65 or 66 or 62 or 64"
+                }
+            ]
+        }
+
+        mockedAxios.post.mockResolvedValueOnce({ data: serverResponse });
+
+        await expect(handler.purchase(options)).rejects.toThrow(
+            new VendorAccountNotFound(serverResponse.ValidationErrors[0].ErrorMessage)
+        );
+    });
+
+    it('throws vendor errors for purchase when customer insufficient balanace', async () => {
+        const serverResponse = {
+            StatusCode: 5,
+            RequestId: 2142,
+            StatusDescription: "Insufficient Customer Balance"
+        }
+
+        mockedAxios.post.mockResolvedValueOnce({ data: serverResponse });
+
+        await expect(handler.purchase(options)).rejects.toThrow(
+            new VendorInsufficientBalance(serverResponse.StatusDescription)
+        );
+    });
+
+    it('throws vendor errors for credit when insufficient balanace', async () => {
+        const serverResponse = {
+            TransactionStatus:"Rejected",
+            TransactionMesage: "You do not have sufficient balance."
+        }
+
+        mockedAxios.post.mockResolvedValueOnce({ data: serverResponse });
+
+        await expect(handler.credit(options)).rejects.toThrow(
+            new VendorInsufficientBalance(serverResponse.TransactionMesage)
+        );
     });
 
 });

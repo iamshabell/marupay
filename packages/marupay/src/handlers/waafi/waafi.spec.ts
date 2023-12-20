@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { WaafiHandler, createWaafiHandler } from './waafi'; // Import your WaafiHandler
 import { Currency } from '../../handlers/enums';
-import { VendorErrorException } from '../../handlers/exeptions';
+import { VendorAccountNotFound, VendorErrorException, VendorInsufficientBalance } from '../../handlers/exeptions';
 
 jest.mock('axios');
 
@@ -75,7 +75,7 @@ describe('Waafi Handler', () => {
         expect(result.paymentStatus).toBe('APPROVED');
     });
 
-    it('throws vendor errors for credit when account not found', async () => {
+    it('throws vendor errors for when account not found', async () => {
         const serverResponse = {
             responseCode: '5001',
             responseMsg: 'RCS_NO_ROUTE_FOUND',
@@ -85,8 +85,25 @@ describe('Waafi Handler', () => {
 
         mockedAxios.post.mockResolvedValueOnce({ data: serverResponse });
 
-        await expect(handler.credit(options)).rejects.toThrow(
-            new VendorErrorException('5001', 'RCS_NO_ROUTE_FOUND')
+        await expect(handler.purchase(options)).rejects.toThrow(
+            new VendorAccountNotFound('Must be a valid phone number')
         );
     });
+
+    it('throws vendor errors when insufficient balance', async () => {
+        const serverResponse = {
+            responseCode: '5001',
+            responseMsg: 'There are not enough funds in your account to complete this transaction.',
+            errorCode: 'E101073',
+            params: null,
+        };
+
+        mockedAxios.post.mockResolvedValueOnce({ data: serverResponse });
+
+        await expect(handler.purchase(options)).rejects.toThrow(
+            new VendorInsufficientBalance(serverResponse.responseMsg)
+        );
+    });
+
+
 });
