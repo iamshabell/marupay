@@ -14,7 +14,12 @@ export interface PurchasePaymentRes {
     StatusCode: number;
     RequestId: number;
     StatusDescription: string;
-    ValidationErrors?: string;
+    ValidationErrors?: ValidationError[];
+}
+
+export interface ValidationError {
+    Property: string;
+    ErrorMessage: string;
 }
 
 export interface CreditPaymentReq {

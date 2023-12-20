@@ -1,14 +1,13 @@
 import axios from 'axios';
-import { ZodString, z } from 'zod';
+import { z } from 'zod';
 import { generateUuid } from '../../utils/generateUuid';
 import { defineHandler } from '../../handler';
 import * as API from './api';
 import { hashSecretKey } from './hash';
-import { PaymentCtx, PaymentOptions } from '../types';
 import { prepareRequest } from './prepareRequest';
 import { SO_ACCOUNT_NUMBER, soPurchaseNumber } from '../constants'
 import { safeParse } from '../../utils/safeParser';
-import { VendorErrorException } from '../../handlers/exeptions';
+import { VendorAccountNotFound, VendorErrorException, VendorInsufficientBalance } from '../../handlers/exeptions';
 
 const edahabPurchase = z.object({
     accountNumber: soPurchaseNumber,
@@ -25,11 +24,21 @@ const edahabPurchase = z.object({
  */
 const purchaseFn = async (url: string, data: API.PurchasePaymentData, referenceId: string) => {
     const response = await axios.post<API.PurchasePaymentReq, { data: API.PurchasePaymentRes }>(url, data);
-    const { TransactionId, InvoiceStatus } = response.data;
-    const responseCode = `${InvoiceStatus}`;
-    if (responseCode !== 'Paid') {
-        console.log(`${InvoiceStatus}`);
-        throw new VendorErrorException(responseCode, InvoiceStatus);
+    const { TransactionId, InvoiceStatus, StatusCode, StatusDescription } = response.data;
+    console.log(`response: ${JSON.stringify(response.data)}`);
+    if (response.data.ValidationErrors) {
+        const { ErrorMessage, Property } = response.data.ValidationErrors[0];
+        if (Property === 'EDahabNumber') {
+            throw new VendorAccountNotFound(ErrorMessage);
+        }
+    }
+
+    if (StatusCode === 5) {
+        throw new VendorInsufficientBalance(StatusDescription);
+    }
+    
+    if (InvoiceStatus !== 'Paid') {
+        throw new VendorErrorException(`${StatusCode}`, InvoiceStatus);
     }
     return {
         transactionId: TransactionId,
@@ -51,11 +60,13 @@ const creditFn = async (url: string, data: API.CreditPaymentData, referenceId: s
     const response = await axios.post<API.CreditPaymentReq, { data: API.CreditPaymentRes }>(url, data);
 
     const { TransactionId, TransactionMesage, TransactionStatus } = response.data;
-    const responseCode = `${TransactionStatus}`;
 
-    if (responseCode !== 'Approved') {
-        console.log(`credit error: ${TransactionMesage}`);
-        throw new VendorErrorException(responseCode, 'EDAHAB-CREDIT-ERROR');
+    if (TransactionMesage === 'You do not have sufficient balance.') {
+        throw new VendorInsufficientBalance(TransactionMesage);
+     }
+ 
+    if (TransactionStatus !== 'Approved') {
+        throw new VendorErrorException(TransactionStatus, 'EDAHAB-CREDIT-ERROR');
     }
 
     return {
