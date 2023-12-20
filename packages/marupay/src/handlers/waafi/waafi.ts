@@ -6,7 +6,7 @@ import * as API from './api';
 import { prepareRequest } from './prepareRequest';
 import { safeParse } from '../../utils/safeParser';
 import { soPurchaseNumber } from '../../handlers/constants';
-import { VendorErrorException } from '../../handlers/exeptions';
+import { VendorAccountNotFound, VendorErrorException } from '../../handlers/exeptions';
 
 const waafiPurchase = z.object({
     accountNumber: soPurchaseNumber,
@@ -23,8 +23,11 @@ async function sendRequest(url: string, data: API.PurchaseData) {
     const response = await axios.post<API.PurchasePaymentReq, { data: API.PurchasePaymentRes }>(url, data);
     const { responseCode, responseMsg, errorCode, params } = response.data;
 
+    if (responseMsg === 'RCS_NO_ROUTE_FOUND') {
+        throw new VendorAccountNotFound('Must be a valid phone number');
+    }
+
     if (responseCode !== '2001' || params == null) {
-        console.log(`WAAFI: API-RES: ${responseMsg} ERROR-CODE: ${errorCode}`);
         throw new VendorErrorException(errorCode, responseMsg);
     }
 
