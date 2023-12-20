@@ -38,8 +38,8 @@ const purchaseFn = async (url: string, data: API.PurchasePaymentData, referenceI
         throw new VendorInsufficientBalance(StatusDescription);
     }
     
-    if (InvoiceStatus !== 'Paid' || StatusCode !== 0) {
-        throw new VendorErrorException(StatusCode.toString(), InvoiceStatus);
+    if (InvoiceStatus !== 'Paid') {
+        throw new VendorErrorException(`${StatusCode}`, InvoiceStatus);
     }
     return {
         transactionId: TransactionId,
@@ -62,7 +62,7 @@ const creditFn = async (url: string, data: API.CreditPaymentData, referenceId: s
 
     const { TransactionId, TransactionMesage, TransactionStatus } = response.data;
 
-    if (TransactionMesage.includes('sufficient balance')) {
+    if (TransactionMesage === 'You do not have sufficient balance') {
         throw new VendorInsufficientBalance(TransactionMesage);
      }
  
