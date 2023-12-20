@@ -6,7 +6,7 @@ import * as API from './api';
 import { prepareRequest } from './prepareRequest';
 import { safeParse } from '../../utils/safeParser';
 import { soPurchaseNumber } from '../../handlers/constants';
-import { VendorAccountNotFound, VendorErrorException } from '../../handlers/exeptions';
+import { VendorAccountNotFound, VendorErrorException, VendorInsufficientBalance } from '../../handlers/exeptions';
 
 const waafiPurchase = z.object({
     accountNumber: soPurchaseNumber,
@@ -22,9 +22,13 @@ const waafiPurchase = z.object({
 async function sendRequest(url: string, data: API.PurchaseData) {
     const response = await axios.post<API.PurchasePaymentReq, { data: API.PurchasePaymentRes }>(url, data);
     const { responseCode, responseMsg, errorCode, params } = response.data;
-
+    
     if (responseMsg === 'RCS_NO_ROUTE_FOUND') {
         throw new VendorAccountNotFound('Must be a valid phone number');
+    }
+
+    if (errorCode === 'E101073') {
+        throw new VendorInsufficientBalance(responseMsg);
     }
 
     if (responseCode !== '2001' || params == null) {

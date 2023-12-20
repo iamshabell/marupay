@@ -23,8 +23,8 @@ class VendorAccountNotFound extends VendorErrorException {
 }
 
 class VendorInsufficientBalance extends VendorErrorException {
-  constructor(public code: string, public message: string) {
-    super(code, message || 'Vendor insufficient balance');
+  constructor(public message: string) {
+    super('INSUFFICIENT-BALANCE', message || 'Vendor insufficient balance');
     this.name = 'VendorInsufficientBalance';
   }
 }
