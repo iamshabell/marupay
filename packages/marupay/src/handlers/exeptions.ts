@@ -15,4 +15,18 @@ class VendorErrorException extends MaruPayException {
     }
 }
 
-export { MaruPayException, VendorErrorException };
+class VendorAccountNotFound extends VendorErrorException {
+  constructor(public message: string) {
+    super('ACCOUNT-NOT-FOUND', message || 'Vendor account not found');
+    this.name = 'VendorAccountNotFound';
+  }
+}
+
+class VendorInsufficientBalance extends VendorErrorException {
+  constructor(public code: string, public message: string) {
+    super(code, message || 'Vendor insufficient balance');
+    this.name = 'VendorInsufficientBalance';
+  }
+}
+
+export { MaruPayException, VendorErrorException, VendorAccountNotFound, VendorInsufficientBalance };
