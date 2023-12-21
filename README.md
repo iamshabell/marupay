@@ -118,6 +118,8 @@ The provided examples demonstrate how to use the Marupay SDK for both purchase a
 ### Contributing
 If you encounter any issues or have suggestions for improvements, feel free to contribute by opening [issues]('https://github.com/iamshabell/marupay/issues') or submitting [pull requests]('https://github.com/iamshabell/marupay/pulls') on the GitHub repository.
 
+Check here for full guide on how to contribute: https://www.marupay.dev/contributing
+
 ### License
 
 This SDK is released under the MIT License. Feel free to use, modify, and distribute it as needed for your projects.
