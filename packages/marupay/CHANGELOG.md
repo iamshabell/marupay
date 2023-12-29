@@ -1,5 +1,11 @@
 # marupay
 
+## 0.2.6
+
+### Patch Changes
+
+- 32d93da: Tests for payment handler
+
 ## 0.2.5
 
 ### Patch Changes
