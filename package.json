@@ -20,7 +20,7 @@
   "dependencies": {
     "@changesets/cli": "^2.27.1"
   },
-  "packageManager": "yarn@1.22.21",
+  "packageManager": "pnpm@1.22.21",
   "workspaces": [
     "apps/*",
     "packages/*"
