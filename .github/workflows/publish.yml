@@ -24,13 +24,13 @@ jobs:
           node-version: 18.x
 
       - name: Install Dependencies
-        run: yarn
+        run: npm install
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: yarn publish-package
+          publish: npm run publish-package
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
