@@ -1,9 +1,9 @@
 export type SiteConfig = typeof siteConfig
 
 export const siteConfig = {
-  name: "Next.js",
+  name: "MaruPay",
   description:
-    "Beautifully designed components built with Radix UI and Tailwind CSS.",
+    "MaruPay is a payment gateway that allows you to accept payments from your customers and pay out to your suppliers in a single platform.",
   mainNav: [
     {
       title: "Home",
@@ -11,8 +11,8 @@ export const siteConfig = {
     },
   ],
   links: {
-    twitter: "https://twitter.com/shadcn",
-    github: "https://github.com/shadcn/ui",
-    docs: "https://ui.shadcn.com",
+    twitter: "https://twitter.com/marupaysdk",
+    github: "https://github.com/iamshabell/marupay",
+    docs: "https://marupay.dev/",
   },
 }

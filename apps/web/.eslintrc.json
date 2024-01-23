@@ -3,8 +3,8 @@
   "root": true,
   "extends": [
     "next/core-web-vitals",
-    "prettier",
-    "plugin:tailwindcss/recommended"
+    "plugin:tailwindcss/recommended",
+    "@repo/eslint-config/next.js"
   ],
   "plugins": ["tailwindcss"],
   "rules": {
@@ -20,11 +20,5 @@
     "next": {
       "rootDir": ["./"]
     }
-  },
-  "overrides": [
-    {
-      "files": ["*.ts", "*.tsx"],
-      "parser": "@typescript-eslint/parser"
-    }
-  ]
+  }
 }

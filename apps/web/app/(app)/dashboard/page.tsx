@@ -5,7 +5,7 @@ import { UserButton, auth } from "@clerk/nextjs"
 import { siteConfig } from "@/config/site"
 import { buttonVariants } from "@/components/ui/button"
 
-export default function IndexPage() {
+export default function Dashboard() {
   const { userId } = auth()
 
   if (userId) {
