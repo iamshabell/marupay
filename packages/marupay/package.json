@@ -11,8 +11,8 @@
     ],
     "scripts": {
         "prebuild": "rimraf dist",
-        "build": "yarn tsup src/index.ts --format cjs,esm --dts",
-        "dev": "yarn build -- --watch",
+        "build": "npx tsup src/index.ts --format cjs,esm --dts",
+        "dev": "npm run build -- --watch",
         "lint": "eslint \"{src,test}/**/*.ts\" --fix",
         "test": "jest --runInBand",
         "test:coverage": "jest --coverage --runInBand"
