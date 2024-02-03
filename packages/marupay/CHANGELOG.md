@@ -1,5 +1,11 @@
 # marupay
 
+## 0.2.7
+
+### Patch Changes
+
+- 8ef31fc: remove: unnecassary logs
+
 ## 0.2.6
 
 ### Patch Changes
