@@ -1,9 +1,9 @@
-import { createEdahabHandler } from './handlers/edahab';
-import { createWaafiHandler } from './handlers/waafi';
+import { createEdahabHandler } from "./handlers/edahab";
+import { createWaafiHandler } from "./handlers/waafi";
 
 export const handlers = {
-    edahab: createEdahabHandler,
-    waafi: createWaafiHandler,
+  edahab: createEdahabHandler,
+  waafi: createWaafiHandler,
 };
 
 export type HandlerName = keyof typeof handlers;
@@ -15,10 +15,9 @@ export type HandlerName = keyof typeof handlers;
  * @throws {Error} If the provided handler name is not supported.
  */
 export const getPaymentHandler = (HandlerName: HandlerName) => {
-    if (!handlers[HandlerName]) {
-        throw Error(`This Handler is not supported, supported Handlers: ${Object.keys(handlers).join(', ')}`);
-    }
-    console.log(`CHOSEN HANDLER: ${HandlerName}`);
-    
-    return handlers[HandlerName];
+  if (!handlers[HandlerName]) {
+    throw Error(`This Handler is not supported, supported Handlers: ${Object.keys(handlers).join(", ")}`);
+  }
+
+  return handlers[HandlerName];
 };
