@@ -8,7 +8,7 @@
     "test": "turbo test",
     "test:coverage": "turbo test:coverage",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "publish-package": "turbo run build lint test:coverage && changeset version && changeset publish"
+    "publish-package": "pnpm run build lint test:coverage && changeset version && changeset publish"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
@@ -20,7 +20,7 @@
   "dependencies": {
     "@changesets/cli": "^2.27.1"
   },
-  "packageManager": "npm@1.22.21",
+  "packageManager": "pnpm@6.14.1",
   "workspaces": [
     "apps/*",
     "packages/*"
