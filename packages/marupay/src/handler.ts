@@ -17,6 +17,7 @@ export const basePurchaseSchema = z.object({
   amount: z.number(),
   currency: z.nativeEnum(Currency),
   description: z.string().optional(),
+  returnUrl: z.string().optional(),
 });
 
 export type BasePurchaseOptions = z.infer<typeof basePurchaseSchema>;
