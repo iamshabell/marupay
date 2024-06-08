@@ -36,6 +36,9 @@ const purchaseFn = async (url: string, data: API.PurchasePaymentData, referenceI
     throw new VendorInsufficientBalance(StatusDescription);
   }
 
+  if (InvoiceStatus !== "Paid") {
+    throw new VendorErrorException(`${StatusCode}`, InvoiceStatus);
+  }
   return {
     transactionId: TransactionId,
     paymentStatus: InvoiceStatus,

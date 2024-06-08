@@ -39,6 +39,18 @@ describe("Edahab Handler", () => {
     expect(result.paymentStatus).toBe("Paid");
   });
 
+  it("throws vendor errors for purchase accordingly", async () => {
+    const serverResponse = {
+      InvoiceStatus: "Unpaid",
+      TransactionId: "MP2234219.2220.A91111",
+      InvoiceId: 10145,
+    };
+
+    mockedAxios.post.mockResolvedValueOnce({ data: serverResponse });
+
+    await expect(handler.purchase(options)).rejects.toThrow(new VendorErrorException("1", "Unpaid"));
+  });
+
   it("returns the success payment response for credit", async () => {
     const serverResponse = {
       TransactionId: "5678",

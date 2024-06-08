@@ -27,7 +27,6 @@ export const prepareRequest = (
       currency: data.currency,
       agentCode: ctx.merchantId,
       description: data.description,
-      returnUrl: data.returnUrl,
     } as API.PurchasePaymentData;
   } else if (paymentType === "credit") {
     requestData = {
