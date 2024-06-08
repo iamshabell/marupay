@@ -1,5 +1,11 @@
 # marupay
 
+## 0.3.0
+
+### Minor Changes
+
+- d565ea1: add edahab web payment version
+
 ## 0.2.8
 
 ### Patch Changes
